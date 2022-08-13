@@ -95,6 +95,9 @@ workflows:
       - build-and-test-rust
       - lint-rust
       - cypress/run:
+          requires:
+            - build-and-test-rust
+          working_directory: browser-tests
           yarn: true
           start: ./targer/debug/yanwa
           post-checkout:
