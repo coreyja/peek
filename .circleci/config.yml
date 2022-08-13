@@ -98,8 +98,11 @@ workflows:
           requires:
             - build-and-test-rust
           working_directory: browser-tests
+          attach-workspace: false
+          no-workspace: true
+          cache=key: 'cache-{{ arch }}-{{ .Branch }}-{{ checksum "browser-tests/package.json" }}'
           yarn: true
-          start: ./targer/debug/yanwa
+          start: ./target/debug/yanwa
           post-checkout:
             - attach_workspace:
                 at: target
