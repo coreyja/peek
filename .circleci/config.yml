@@ -67,26 +67,15 @@ jobs:
           root: target
           paths:
             - debug/yanwa
-  build-release:
+  deploy-fly:
     docker:
       - image: rust:latest
-    resource_class: xlarge
+    resource_class: small
     steps:
       - checkout
 
-      - with-rust-setup:
-          do:
-            - run:
-                name: Build
-                command: cargo build --locked --bin yanwa --release
-
-      - store_artifacts:
-          path: target/release/yanwa
-          destination: yanwa
-      - persist_to_workspace:
-          root: target
-          paths:
-            - release/yanwa
+      - run: curl -L https://fly.io/install.sh | sh
+      - run: fly deploy --app yanwa --remote
 
 workflows:
   version: 2
@@ -107,7 +96,11 @@ workflows:
             - attach_workspace:
                 at: target
 
-      - build-release:
+      - deploy-fly:
+          requires:
+            - build-and-test-rust
+            - lint-rust
+            - cypress/run
           filters:
             branches:
               only:
