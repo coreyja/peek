@@ -1,0 +1,93 @@
+version: 2.1
+
+commands: # a reusable command with parameters
+  with-rust-setup:
+    parameters:
+      do:
+        default: []
+        type: steps
+    steps:
+      - run:
+          name: Set Cargo Parallel Jobs Setting
+          command: echo 'export "CARGO_BUILD_JOBS"="8"' >> $BASH_ENV
+
+      - run:
+          name: Print Rust Versions
+          command: rustc --version; cargo --version; rustup --version
+
+      - steps: << parameters.do >>
+jobs:
+  lint-rust:
+    docker:
+      - image: rust:latest
+    resource_class: medium
+    steps:
+      - checkout
+
+      - with-rust-setup:
+          do:
+            - run:
+                name: Install Rust Format
+                command: rustup component add rustfmt
+
+            - run:
+                name: Test Formatting
+                command: cargo fmt -- --check
+
+            - run:
+                name: Clippy
+                command: rustup component add clippy && cargo clippy --workspace --no-deps
+  test-rust:
+    docker:
+      - image: rust:latest
+    resource_class: xlarge
+    steps:
+      - checkout
+
+      - with-rust-setup:
+          do:
+            - run:
+                name: Build
+                command: cargo build --locked --all-targets
+
+            - run:
+                name: Run Tests
+                command: cargo test --locked
+
+            - run:
+                name: Build Docs
+                command: cargo doc --workspace --no-deps
+  build-release:
+    docker:
+      - image: rust:latest
+    resource_class: xlarge
+    steps:
+      - checkout
+
+      - with-rust-setup:
+          do:
+            - run:
+                name: Build
+                command: cargo build --locked --bin web-axum --release
+
+      - store_artifacts:
+          path: target/release/server
+          destination: server
+      - persist_to_workspace:
+          root: target
+          paths:
+            - release/server
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - test-rust
+      - lint-rust
+      - build-release:
+          filters:
+            branches:
+              only:
+                - 'main'
+
+
