@@ -100,7 +100,7 @@ workflows:
           working_directory: browser-tests
           attach-workspace: false
           no-workspace: true
-          cache=key: 'cache-{{ arch }}-{{ .Branch }}-{{ checksum "browser-tests/package.json" }}'
+          cache-key: 'cache-{{ arch }}-{{ .Branch }}-{{ checksum "browser-tests/package.json" }}'
           yarn: true
           start: ./target/debug/yanwa
           post-checkout:
