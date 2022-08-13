@@ -2,6 +2,6 @@ describe('/', () => {
   it('contains hello world', () => {
     cy.visit('http://localhost:3000/');
 
-    cy.contains('Hello, World!');
+    cy.get('h1').contains('Hello, World!');
   })
 })
