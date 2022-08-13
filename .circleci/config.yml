@@ -37,7 +37,7 @@ jobs:
             - run:
                 name: Clippy
                 command: rustup component add clippy && cargo clippy --workspace --no-deps
-  test-rust:
+  build-and-test-rust:
     docker:
       - image: rust:latest
     resource_class: xlarge
@@ -57,6 +57,14 @@ jobs:
             - run:
                 name: Build Docs
                 command: cargo doc --workspace --no-deps
+
+      - store_artifacts:
+          path: target/debug/server
+          destination: server
+      - persist_to_workspace:
+          root: target
+          paths:
+            - debug/server
   build-release:
     docker:
       - image: rust:latest
@@ -82,7 +90,7 @@ workflows:
   version: 2
   ci:
     jobs:
-      - test-rust
+      - build-and-test-rust
       - lint-rust
       - build-release:
           filters:
