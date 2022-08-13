@@ -3,7 +3,7 @@
 //! Powered by [`axum`]
 #![forbid(unsafe_code, missing_docs)]
 
-use axum::{routing::get, Router};
+use axum::{response::Html, routing::get, Router};
 use std::net::SocketAddr;
 
 #[tokio::main]
@@ -27,6 +27,6 @@ async fn main() {
 }
 
 // basic handler that responds with a static string
-async fn root() -> &'static str {
-    "Hello, World!"
+async fn root() -> Html<&'static str> {
+    Html("Hello, World!")
 }
