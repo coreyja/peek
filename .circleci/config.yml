@@ -97,6 +97,8 @@ workflows:
                 at: target
 
       - deploy-fly:
+          contexts:
+            - Fly.io
           requires:
             - build-and-test-rust
             - lint-rust
