@@ -91,6 +91,7 @@ workflows:
             - build-and-test-rust
           working_directory: browser-tests
           attach-workspace: false
+          store_artifacts: true
           no-workspace: true
           cache-key: 'cache-{{ arch }}-{{ .Branch }}-{{ checksum "browser-tests/package.json" }}'
           yarn: true
