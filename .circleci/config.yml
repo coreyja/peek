@@ -59,12 +59,12 @@ jobs:
                 command: cargo doc --workspace --no-deps
 
       - store_artifacts:
-          path: target/debug/server
-          destination: server
+          path: target/debug/yanwa
+          destination: yanwa
       - persist_to_workspace:
           root: target
           paths:
-            - debug/server
+            - debug/yanwa
   build-release:
     docker:
       - image: rust:latest
@@ -76,15 +76,15 @@ jobs:
           do:
             - run:
                 name: Build
-                command: cargo build --locked --bin web-axum --release
+                command: cargo build --locked --bin yanwa --release
 
       - store_artifacts:
-          path: target/release/server
-          destination: server
+          path: target/release/yanwa
+          destination: yanwa
       - persist_to_workspace:
           root: target
           paths:
-            - release/server
+            - release/yanwa
 
 workflows:
   version: 2
