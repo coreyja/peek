@@ -3,7 +3,8 @@
 //! Powered by [`axum`]
 #![forbid(unsafe_code, missing_docs)]
 
-use axum::{routing::get, Router};
+use axum::{routing::get, Extension, Router};
+use sqlx::{migrate, SqlitePool};
 use std::net::SocketAddr;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{prelude::*, EnvFilter};
@@ -21,9 +22,14 @@ async fn main() {
         .with(HierarchicalLayer::new(3))
         .init();
 
+    let pool = SqlitePool::connect("sqlite:main.db").await.unwrap();
+
+    migrate!("./migrations/").run(&pool).await.unwrap();
+
     let app = Router::new()
         .route("/", get(routes::root))
-        .layer(TraceLayer::new_for_http());
+        .layer(TraceLayer::new_for_http())
+        .layer(Extension(pool));
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::debug!("listening on {}", addr);
