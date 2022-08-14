@@ -90,12 +90,13 @@ workflows:
           requires:
             - build-and-test-rust
           working_directory: browser-tests
+          executor: cypress/base-16-14-2-slim
           attach-workspace: false
           store_artifacts: true
           no-workspace: true
           cache-key: 'cache-{{ arch }}-{{ .Branch }}-{{ checksum "browser-tests/package.json" }}'
           yarn: true
-          start: touch main.db && ../target/debug/yanwa
+          start: ../target/debug/yanwa
           post-checkout:
             - attach_workspace:
                 at: target

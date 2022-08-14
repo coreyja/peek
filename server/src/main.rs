@@ -22,7 +22,11 @@ async fn main() {
         .with(HierarchicalLayer::new(3))
         .init();
 
-    let pool = SqlitePool::connect("sqlite:main.db").await.unwrap();
+    let pool = SqlitePool::connect(
+        &std::env::var("DATABASE_URL").unwrap_or_else(|_| "sqlite::memory:".into()),
+    )
+    .await
+    .unwrap();
 
     migrate!("./migrations/").run(&pool).await.unwrap();
 
