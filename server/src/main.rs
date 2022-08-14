@@ -3,37 +3,32 @@
 //! Powered by [`axum`]
 #![forbid(unsafe_code, missing_docs)]
 
-use axum::{
-    response::{Html, IntoResponse},
-    routing::get,
-    Router,
-};
-use maud::html;
+use axum::{routing::get, Router};
 use std::net::SocketAddr;
+use tower_http::trace::TraceLayer;
+use tracing_subscriber::{prelude::*, EnvFilter};
+use tracing_tree::HierarchicalLayer;
+
+mod routes;
+mod templates;
 
 #[tokio::main]
 async fn main() {
-    // initialize tracing
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::registry()
+        .with(EnvFilter::new(
+            std::env::var("RUST_LOG").unwrap_or_else(|_| "yanwa=debug,tower_http=debug".into()),
+        ))
+        .with(HierarchicalLayer::new(3))
+        .init();
 
-    // build our application with a route
     let app = Router::new()
-        // `GET /` goes to `root`
-        .route("/", get(root));
+        .route("/", get(routes::root))
+        .layer(TraceLayer::new_for_http());
 
-    // run our app with hyper
-    // `axum::Server` is a re-export of `hyper::Server`
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::debug!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
-}
-
-// basic handler that responds with a static string
-async fn root() -> impl IntoResponse {
-    html! {
-      h1 { "Hello, World!" }
-    }
 }
