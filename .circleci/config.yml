@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  cypress: cypress-io/cypress@1
+  cypress: cypress-io/cypress@2.1.0
 
 commands: # a reusable command with parameters
   with-rust-setup:
@@ -90,7 +90,7 @@ workflows:
           requires:
             - build-and-test-rust
           working_directory: browser-tests
-          executor: base-16-14-2-slim
+          executor: cypress/base-16-14-2-slim
           attach-workspace: false
           store_artifacts: true
           no-workspace: true
