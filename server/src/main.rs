@@ -6,7 +6,7 @@
 use axum::{routing::get, Extension, Router};
 use sqlx::{migrate, SqlitePool};
 use std::net::SocketAddr;
-use tower_cookies::CookieManagerLayer;
+use tower_cookies::{CookieManagerLayer, Key};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{prelude::*, EnvFilter};
 use tracing_tree::HierarchicalLayer;
@@ -31,10 +31,13 @@ async fn main() {
 
     migrate!("./migrations/").run(&pool).await.unwrap();
 
+    let key = Key::generate();
+
     let app = Router::new()
         .route("/", get(routes::root))
         .layer(TraceLayer::new_for_http())
         .layer(Extension(pool))
+        .layer(Extension(key))
         .layer(CookieManagerLayer::new());
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
