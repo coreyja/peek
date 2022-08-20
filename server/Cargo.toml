@@ -9,8 +9,9 @@ edition = "2021"
 axum = "0.5.15"
 maud = { features = ["axum"], git = "https://github.com/lambda-fairy/maud", branch = "main" }
 serde = { version = "1.0.143", features = ["derive"] }
-sqlx = { version = "0.6.1", features = ["sqlite", "runtime-tokio-rustls"] }
+sqlx = { version = "0.6.1", features = ["sqlite", "runtime-tokio-rustls", "chrono"] }
 tokio = { version = "1.20.1", features = ["full"] }
+tower-cookies = { version = "0.7.0", features = ["private", "signed"] }
 tower-http = { version = "0.3.4", features = ["tracing", "trace"] }
 tracing = "0.1.36"
 tracing-subscriber = { version = "0.3.15", features = ["env-filter"] }

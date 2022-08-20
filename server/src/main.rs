@@ -6,6 +6,7 @@
 use axum::{routing::get, Extension, Router};
 use sqlx::{migrate, SqlitePool};
 use std::net::SocketAddr;
+use tower_cookies::CookieManagerLayer;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{prelude::*, EnvFilter};
 use tracing_tree::HierarchicalLayer;
@@ -33,7 +34,8 @@ async fn main() {
     let app = Router::new()
         .route("/", get(routes::root))
         .layer(TraceLayer::new_for_http())
-        .layer(Extension(pool));
+        .layer(Extension(pool))
+        .layer(CookieManagerLayer::new());
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::debug!("listening on {}", addr);
