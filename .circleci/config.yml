@@ -45,6 +45,7 @@ jobs:
     resource_class: xlarge
     environment:
       DATABASE_URL: "sqlite:./main.db"
+      SQLX_OFFLINE: true
     steps:
       - checkout
 
