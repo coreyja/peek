@@ -1,6 +1,7 @@
 use axum::{
     async_trait,
-    extract::{FromRequest, RequestParts},
+    extract::{FromRequest, FromRequestParts},
+    http::{request::Parts, Request},
     response::{IntoResponse, Response},
     Extension,
 };
@@ -15,17 +16,20 @@ pub struct Session {
 }
 
 #[async_trait]
-impl<Body: Send> FromRequest<Body> for Session {
+impl<State> FromRequestParts<State> for Session
+where
+    State: Send + Sync,
+{
     type Rejection = Response;
 
-    async fn from_request(req: &mut RequestParts<Body>) -> Result<Self, Self::Rejection> {
-        let Extension(pool): Extension<SqlitePool> = Extension::from_request(req)
+    async fn from_request_parts(parts: &mut Parts, state: &State) -> Result<Self, Self::Rejection> {
+        let Extension(pool): Extension<SqlitePool> = Extension::from_request_parts(parts, state)
             .await
             .map_err(|err| err.into_response())?;
-        let cookies: Cookies = Cookies::from_request(req)
+        let cookies: Cookies = Cookies::from_request_parts(parts, state)
             .await
             .map_err(|err| err.into_response())?;
-        let Extension(key): Extension<Key> = Extension::from_request(req)
+        let Extension(key): Extension<Key> = Extension::from_request_parts(parts, state)
             .await
             .map_err(|err| err.into_response())?;
 
