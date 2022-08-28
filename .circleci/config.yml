@@ -76,24 +76,22 @@ jobs:
       - image: rust:latest
     resource_class: xlarge
     environment:
-      DATABASE_URL: "sqlite:./main.db"
+      DATABASE_URL: "sqlite:/root/project/server/main.db"
       SQLX_OFFLINE: true
     steps:
       - checkout
 
       - with-rust-setup:
           do:
-            - run: cd server
-
             - run: cargo install sqlx-cli
 
             - run:
                 name: Setup DB
-                command: cargo sqlx database setup
+                command: cd server && cargo sqlx database setup
 
             - run:
                 name: Check prepared sqlx schema
-                command: cargo sqlx prepare --check
+                command: cd server && cargo sqlx prepare --check
   deploy-fly:
     docker:
       - image: rust:latest
