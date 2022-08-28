@@ -65,6 +65,8 @@ jobs:
 
             - run: cd server
 
+            - run: cargo install sqlx-cli
+
             - run:
                 name: Setup DB
                 command: cargo sqlx database prepare
