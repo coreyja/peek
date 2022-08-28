@@ -3,7 +3,7 @@
 //! Powered by [`axum`]
 #![forbid(unsafe_code, missing_docs)]
 
-use axum::{routing::get, Extension, Router};
+use axum::{extract::FromRef, routing::get, Router};
 use sqlx::{migrate, SqlitePool};
 use std::net::SocketAddr;
 use tower_cookies::{CookieManagerLayer, Key};
@@ -13,6 +13,31 @@ use tracing_tree::HierarchicalLayer;
 
 mod routes;
 mod templates;
+
+/// Holder of the [Key] we use for Cookies
+#[derive(Clone)]
+pub struct CookieKey(Key);
+
+impl FromRef<AppState> for CookieKey {
+    fn from_ref(state: &AppState) -> Self {
+        state.key.clone()
+    }
+}
+
+/// Wrapper around a SqlitePool
+#[derive(Clone)]
+pub struct Pool(SqlitePool);
+
+impl FromRef<AppState> for Pool {
+    fn from_ref(state: &AppState) -> Self {
+        state.pool.clone()
+    }
+}
+
+struct AppState {
+    pool: Pool,
+    key: CookieKey,
+}
 
 #[tokio::main]
 async fn main() {
@@ -31,13 +56,16 @@ async fn main() {
 
     migrate!("./migrations/").run(&pool).await.unwrap();
 
-    let key = Key::generate();
+    let pool = Pool(pool);
 
-    let app = Router::new()
+    let key = Key::generate();
+    let key = CookieKey(key);
+
+    let state = AppState { pool, key };
+
+    let app = Router::with_state(state)
         .route("/", get(routes::root))
         .layer(TraceLayer::new_for_http())
-        .layer(Extension(pool))
-        .layer(Extension(key))
         .layer(CookieManagerLayer::new());
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));

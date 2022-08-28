@@ -1,15 +1,13 @@
 use axum::{
     async_trait,
-    extract::{FromRequest, FromRequestParts},
-    http::{request::Parts, Request},
+    extract::{FromRef, FromRequestParts, State},
+    http::request::Parts,
     response::{IntoResponse, Response},
-    Extension,
 };
 use maud::html;
-use sqlx::SqlitePool;
-use tower_cookies::{Cookie, Cookies, Key};
+use tower_cookies::{Cookie, Cookies};
 
-use crate::templates;
+use crate::{templates, CookieKey, Pool};
 
 pub struct Session {
     id: i64,
@@ -19,19 +17,17 @@ pub struct Session {
 impl<State> FromRequestParts<State> for Session
 where
     State: Send + Sync,
+    CookieKey: FromRef<State>,
+    Pool: FromRef<State>,
 {
     type Rejection = Response;
 
     async fn from_request_parts(parts: &mut Parts, state: &State) -> Result<Self, Self::Rejection> {
-        let Extension(pool): Extension<SqlitePool> = Extension::from_request_parts(parts, state)
-            .await
-            .map_err(|err| err.into_response())?;
+        let Pool(pool) = Pool::from_ref(state);
         let cookies: Cookies = Cookies::from_request_parts(parts, state)
             .await
             .map_err(|err| err.into_response())?;
-        let Extension(key): Extension<Key> = Extension::from_request_parts(parts, state)
-            .await
-            .map_err(|err| err.into_response())?;
+        let CookieKey(key) = CookieKey::from_ref(state);
 
         let session_id = cookies.private(&key).get("yanwa-session-id");
         let existing_session_id: Option<i64> = if let Some(session_id) = session_id {
@@ -62,7 +58,7 @@ where
     }
 }
 
-pub async fn root(session: Session, Extension(pool): Extension<SqlitePool>) -> impl IntoResponse {
+pub async fn root(session: Session, State(Pool(pool)): State<Pool>) -> impl IntoResponse {
     let session_count = sqlx::query!("SELECT COUNT(*) as count FROM Sessions")
         .fetch_one(&pool)
         .await
