@@ -63,18 +63,6 @@ jobs:
                 name: Build Docs
                 command: cargo doc --workspace --no-deps
 
-            - run: cd server
-
-            - run: cargo install sqlx-cli
-
-            - run:
-                name: Setup DB
-                command: cargo sqlx database prepare
-
-            - run:
-                name: Check prepared sqlx schema
-                command: cargo sqlx prepare --check
-
       - store_artifacts:
           path: target/debug/yanwa
           destination: yanwa
@@ -82,6 +70,30 @@ jobs:
           root: target
           paths:
             - debug/yanwa
+
+  check-db-schema:
+    docker:
+      - image: rust:latest
+    resource_class: xlarge
+    environment:
+      DATABASE_URL: "sqlite:./main.db"
+      SQLX_OFFLINE: true
+    steps:
+      - checkout
+
+      - with-rust-setup:
+          do:
+            - run: cd server
+
+            - run: cargo install sqlx-cli
+
+            - run:
+                name: Setup DB
+                command: cargo sqlx database setup
+
+            - run:
+                name: Check prepared sqlx schema
+                command: cargo sqlx prepare --check
   deploy-fly:
     docker:
       - image: rust:latest
@@ -100,6 +112,7 @@ workflows:
   ci:
     jobs:
       - build-and-test-rust
+      - check-db-schema
       - lint-rust
       - cypress/run:
           requires:
@@ -121,6 +134,7 @@ workflows:
             - Fly.io
           requires:
             - build-and-test-rust
+            - check-db-schema
             - lint-rust
             - cypress/run
           filters:
