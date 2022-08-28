@@ -43,6 +43,8 @@ jobs:
     docker:
       - image: rust:latest
     resource_class: xlarge
+    environment:
+      DATABASE_URL: "sqlite:./main.db"
     steps:
       - checkout
 
@@ -59,6 +61,16 @@ jobs:
             - run:
                 name: Build Docs
                 command: cargo doc --workspace --no-deps
+
+            - run: cd server
+
+            - run:
+                name: Setup DB
+                command: cargo sqlx database prepare
+
+            - run:
+                name: Check prepared sqlx schema
+                command: cargo sqlx prepare --check
 
       - store_artifacts:
           path: target/debug/yanwa
