@@ -2,7 +2,7 @@ use axum::{
     async_trait,
     extract::{FromRef, FromRequestParts, State},
     http::request::Parts,
-    response::{IntoResponse, Response},
+    response::{IntoResponse, Redirect, Response},
     Form,
 };
 use maud::html;
@@ -65,6 +65,7 @@ pub async fn landing() -> impl IntoResponse {
       h1 { "Hello, World!" }
 
       a href="/sign-up" { "Sign Up" }
+      a href="/sign-in" { "Sign In" }
     })
 }
 
@@ -82,6 +83,40 @@ pub async fn sign_up_get() -> impl IntoResponse {
     })
 }
 
+pub async fn sign_in_get() -> impl IntoResponse {
+    templates::base(html! {
+      h1 { "Sign In" }
+
+      form action="/sign-in" method="post" {
+        input type="email" name="email" placeholder="Email";
+        input type="password" name="password" placeholder="Password";
+
+        input type="submit" value="Sign Up";
+      }
+    })
+}
+
+#[derive(Deserialize)]
+pub struct SignInForm {
+    email: String,
+    password: String,
+}
+
+pub async fn sign_in_post(
+    State(Pool(pool)): State<Pool>,
+    Form(form): Form<SignInForm>,
+) -> impl IntoResponse {
+    let user = sqlx::query!("SELECT * FROM Users WHERE email = ?", form.email)
+        .fetch_optional(&pool)
+        .await
+        .unwrap()
+        .unwrap();
+
+    templates::base(html! {
+      h1 { "Hello, " (user.name) "!" }
+    })
+}
+
 #[derive(Deserialize)]
 pub struct SignUp {
     name: String,
@@ -91,12 +126,41 @@ pub struct SignUp {
     password_confirmation: String,
 }
 
-pub async fn sign_up_post(form: Form<SignUp>) -> impl IntoResponse {
-    let name = &form.name;
+use argon2::{
+    password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
+    Argon2,
+};
+
+pub async fn sign_up_post(State(Pool(pool)): State<Pool>, form: Form<SignUp>) -> impl IntoResponse {
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+
+    let password_hash = argon2
+        .hash_password(form.password.as_bytes(), &salt)
+        .unwrap()
+        .to_string();
+
+    sqlx::query!(
+        "INSERT INTO Users (name, email, password_hash) VALUES (?, ?, ?)",
+        form.name,
+        form.email,
+        password_hash
+    )
+    .fetch_optional(&pool)
+    .await
+    .unwrap();
 
     templates::base(html! {
-      h1 { "Hello, " (name) "!" }
+      h1 { "Hello, " (form.name) "!" }
+
+      form action="/sign-out" method="post" {
+        input type="submit" value="Sign Out";
+      }
     })
+}
+
+pub async fn sign_out() -> impl IntoResponse {
+    Redirect::to("/").into_response()
 }
 
 pub async fn root(session: Session, State(Pool(pool)): State<Pool>) -> impl IntoResponse {

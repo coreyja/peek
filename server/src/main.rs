@@ -65,8 +65,11 @@ async fn main() {
 
     let app = Router::with_state(state)
         .route("/", get(routes::landing))
+        .route("/sign-in", get(routes::sign_in_get))
+        .route("/sign-in", post(routes::sign_in_post))
         .route("/sign-up", get(routes::sign_up_get))
         .route("/sign-up", post(routes::sign_up_post))
+        .route("/sign-out", post(routes::sign_out))
         .route("/team", get(routes::root))
         .layer(TraceLayer::new_for_http())
         .layer(CookieManagerLayer::new());
