@@ -1,5 +1,53 @@
 {
   "db": "SQLite",
+  "0bb7353d64231dc12416f5504d94513493670e3f2ae017d87a2f0c3eca045f60": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "password_hash",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 4,
+          "type_info": "Datetime"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 5,
+          "type_info": "Datetime"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT * FROM Users WHERE email = ?"
+  },
   "1252a98d90252da56fd1e3f56c9dcef4dd04a75063688ceac018588fb6e3c9b4": {
     "describe": {
       "columns": [
@@ -29,6 +77,16 @@
       }
     },
     "query": "SELECT * FROM Sessions WHERE id = ?"
+  },
+  "1551e35be15b071dc7a51ad2d845f0e8b28c8f1a861eb761c38524e90872aebb": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "INSERT INTO Users (name, email, password_hash) VALUES (?, ?, ?)"
   },
   "87035a1d161f865dff1a53f92d85cea859639136637636586aa978845301ca86": {
     "describe": {
