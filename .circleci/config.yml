@@ -43,6 +43,9 @@ jobs:
     docker:
       - image: rust:latest
     resource_class: xlarge
+    environment:
+      DATABASE_URL: "sqlite:./main.db"
+      SQLX_OFFLINE: true
     steps:
       - checkout
 
@@ -67,6 +70,28 @@ jobs:
           root: target
           paths:
             - debug/yanwa
+
+  check-db-schema:
+    docker:
+      - image: rust:latest
+    resource_class: xlarge
+    environment:
+      DATABASE_URL: "sqlite:/root/project/server/main.db"
+      SQLX_OFFLINE: true
+    steps:
+      - checkout
+
+      - with-rust-setup:
+          do:
+            - run: cargo install sqlx-cli
+
+            - run:
+                name: Setup DB
+                command: cd server && cargo sqlx database setup
+
+            - run:
+                name: Check prepared sqlx schema
+                command: cd server && cargo sqlx prepare --check
   deploy-fly:
     docker:
       - image: rust:latest
@@ -85,6 +110,7 @@ workflows:
   ci:
     jobs:
       - build-and-test-rust
+      - check-db-schema
       - lint-rust
       - cypress/run:
           requires:
@@ -106,6 +132,7 @@ workflows:
             - Fly.io
           requires:
             - build-and-test-rust
+            - check-db-schema
             - lint-rust
             - cypress/run
           filters:

@@ -1,0 +1,69 @@
+{
+  "db": "SQLite",
+  "1252a98d90252da56fd1e3f56c9dcef4dd04a75063688ceac018588fb6e3c9b4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Datetime"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Datetime"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT * FROM Sessions WHERE id = ?"
+  },
+  "87035a1d161f865dff1a53f92d85cea859639136637636586aa978845301ca86": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "INSERT INTO Sessions DEFAULT VALUES RETURNING id"
+  },
+  "a8c5744158ae3663e917f5b4b434508ce8bf4ef3b58a9fbfb91be8b4fb02d547": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "SELECT COUNT(*) as count FROM Sessions"
+  }
+}
