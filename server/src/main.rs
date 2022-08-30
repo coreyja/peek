@@ -67,7 +67,7 @@ async fn main() {
         .route("/", get(routes::landing))
         .route("/sign-up", get(routes::sign_up_get))
         .route("/sign-up", post(routes::sign_up_post))
-        .route("/home", get(routes::root))
+        .route("/team", get(routes::root))
         .layer(TraceLayer::new_for_http())
         .layer(CookieManagerLayer::new());
 
