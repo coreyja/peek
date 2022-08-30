@@ -26,4 +26,33 @@ describe('Sign Up', () => {
 
     cy.contains('Hello, Emily Thompson!');
   })
+
+  it('errors when the email is already taken', () => {
+    cy.visit('http://localhost:3000/');
+
+    cy.contains('Sign Up').click();
+
+    cy.get('input[name="name"]').type('Emily Thompson');
+
+    const email = faker.internet.email();
+    cy.get('input[name="email"]').type(email);
+    cy.get('input[name="password"]').type('my-password');
+    cy.get('input[name="passwordConfirmation"]').type('my-password');
+    cy.get('input[type="submit"]').click();
+
+    cy.contains('Hello, Emily Thompson!');
+
+    cy.contains('Sign Out').click();
+
+    cy.contains('Sign Up').click();
+
+    cy.get('input[name="name"]').type('Emily Thompson');
+
+    cy.get('input[name="email"]').type(email);
+    cy.get('input[name="password"]').type('my-password');
+    cy.get('input[name="passwordConfirmation"]').type('my-password');
+    cy.get('input[type="submit"]').click();
+
+    cy.contains('Email has already been taken');
+  })
 })

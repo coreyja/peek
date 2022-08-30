@@ -140,23 +140,34 @@ pub async fn sign_up_post(State(Pool(pool)): State<Pool>, form: Form<SignUp>) ->
         .unwrap()
         .to_string();
 
-    sqlx::query!(
+    let insert_result = sqlx::query!(
         "INSERT INTO Users (name, email, password_hash) VALUES (?, ?, ?)",
         form.name,
         form.email,
         password_hash
     )
     .fetch_optional(&pool)
-    .await
-    .unwrap();
+    .await;
 
-    templates::base(html! {
-      h1 { "Hello, " (form.name) "!" }
+    match insert_result {
+        Err(sqlx::Error::Database(err)) => {
+            assert_eq!(err.code().unwrap(), "2067", "Unexpected error code");
 
-      form action="/sign-out" method="post" {
-        input type="submit" value="Sign Out";
-      }
-    })
+            templates::base(html! {
+              h3 { "Email has already been taken" }
+            })
+        }
+        Err(err) => {
+            panic!("Unexpected error: {:?}", err);
+        }
+        Ok(_) => templates::base(html! {
+          h1 { "Hello, " (form.name) "!" }
+
+          form action="/sign-out" method="post" {
+            input type="submit" value="Sign Out";
+          }
+        }),
+    }
 }
 
 pub async fn sign_out() -> impl IntoResponse {
