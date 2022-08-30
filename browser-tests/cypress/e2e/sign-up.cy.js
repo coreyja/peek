@@ -6,9 +6,10 @@ describe('Sign Up', () => {
 
     cy.contains('Sign Up').click();
 
+    cy.get('input[name="name"]').type('Emily Thompson');
+
     const email = faker.internet.email();
     cy.get('input[name="email"]').type(email);
-    cy.get('input[name="name"]').type('Emily Thompson');
     cy.get('input[name="password"]').type('my-password');
     cy.get('input[name="passwordConfirmation"]').type('my-password');
     cy.get('input[type="submit"]').click();
