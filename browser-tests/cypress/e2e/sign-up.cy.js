@@ -55,4 +55,20 @@ describe('Sign Up', () => {
 
     cy.contains('Email has already been taken');
   })
+
+  it('errors when the passwords dont match', () => {
+    cy.visit('http://localhost:3000/');
+
+    cy.contains('Sign Up').click();
+
+    cy.get('input[name="name"]').type('Emily Thompson');
+
+    const email = faker.internet.email();
+    cy.get('input[name="email"]').type(email);
+    cy.get('input[name="password"]').type('my-password');
+    cy.get('input[name="passwordConfirmation"]').type('my-password-typo');
+    cy.get('input[type="submit"]').click();
+
+    cy.contains('Passwords do not match');
+  })
 })

@@ -9,7 +9,10 @@ use maud::html;
 use serde::Deserialize;
 use tower_cookies::{Cookie, Cookies};
 
-use crate::{templates, CookieKey, Pool};
+use crate::{
+    templates::{self, base},
+    CookieKey, Pool,
+};
 
 pub struct Session {
     id: i64,
@@ -132,6 +135,12 @@ use argon2::{
 };
 
 pub async fn sign_up_post(State(Pool(pool)): State<Pool>, form: Form<SignUp>) -> impl IntoResponse {
+    if form.password != form.password_confirmation {
+        return base(html! {
+          h1 { "Passwords do not match" }
+        });
+    }
+
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
 
