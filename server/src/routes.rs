@@ -3,8 +3,10 @@ use axum::{
     extract::{FromRef, FromRequestParts, State},
     http::request::Parts,
     response::{IntoResponse, Response},
+    Form,
 };
 use maud::html;
+use serde::Deserialize;
 use tower_cookies::{Cookie, Cookies};
 
 use crate::{templates, CookieKey, Pool};
@@ -56,6 +58,45 @@ where
 
         Ok(Session { id: session_id })
     }
+}
+
+pub async fn landing() -> impl IntoResponse {
+    templates::base(html! {
+      h1 { "Hello, World!" }
+
+      a href="/sign-up" { "Sign Up" }
+    })
+}
+
+pub async fn sign_up_get() -> impl IntoResponse {
+    templates::base(html! {
+      h1 { "Create Account" }
+
+      form action="/sign-up" method="post" {
+        input type="text" name="name" placeholder="Name";
+        input type="email" name="email" placeholder="Email";
+        input type="password" name="password" placeholder="Password";
+        input type="password" name="passwordConfirmation" placeholder="Repeat Password";
+        input type="submit" value="Sign Up";
+      }
+    })
+}
+
+#[derive(Deserialize)]
+pub struct SignUp {
+    name: String,
+    email: String,
+    password: String,
+    #[serde(rename = "passwordConfirmation")]
+    password_confirmation: String,
+}
+
+pub async fn sign_up_post(form: Form<SignUp>) -> impl IntoResponse {
+    let name = &form.name;
+
+    templates::base(html! {
+      h1 { "Hello, " (name) "!" }
+    })
 }
 
 pub async fn root(session: Session, State(Pool(pool)): State<Pool>) -> impl IntoResponse {

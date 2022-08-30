@@ -3,7 +3,7 @@
 //! Powered by [`axum`]
 #![forbid(unsafe_code, missing_docs)]
 
-use axum::{extract::FromRef, routing::get, Router};
+use axum::{extract::FromRef, routing::*, Router};
 use sqlx::{migrate, SqlitePool};
 use std::net::SocketAddr;
 use tower_cookies::{CookieManagerLayer, Key};
@@ -64,7 +64,10 @@ async fn main() {
     let state = AppState { pool, key };
 
     let app = Router::with_state(state)
-        .route("/", get(routes::root))
+        .route("/", get(routes::landing))
+        .route("/sign-up", get(routes::sign_up_get))
+        .route("/sign-up", post(routes::sign_up_post))
+        .route("/home", get(routes::root))
         .layer(TraceLayer::new_for_http())
         .layer(CookieManagerLayer::new());
 
