@@ -31,7 +31,7 @@ where
             .map_err(|err| err.into_response())?;
         let CookieKey(key) = CookieKey::from_ref(state);
 
-        let session_id = cookies.private(&key).get("yanwa-session-id");
+        let session_id = cookies.private(&key).get("peek-session-id");
         let existing_session_id: Option<i64> = if let Some(session_id) = session_id {
             let session_id = session_id.value();
             sqlx::query!("SELECT * FROM Sessions WHERE id = ?", session_id)
@@ -54,7 +54,7 @@ where
         };
         cookies
             .private(&key)
-            .add(Cookie::new("yanwa-session-id", session_id.to_string()));
+            .add(Cookie::new("peek-session-id", session_id.to_string()));
 
         Ok(Session { id: session_id })
     }

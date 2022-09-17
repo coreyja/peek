@@ -43,7 +43,7 @@ struct AppState {
 async fn main() {
     tracing_subscriber::registry()
         .with(EnvFilter::new(
-            std::env::var("RUST_LOG").unwrap_or_else(|_| "yanwa=debug,tower_http=debug".into()),
+            std::env::var("RUST_LOG").unwrap_or_else(|_| "peek=debug,tower_http=debug".into()),
         ))
         .with(HierarchicalLayer::new(3))
         .init();
