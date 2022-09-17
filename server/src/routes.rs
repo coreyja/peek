@@ -85,9 +85,12 @@ pub async fn sign_up_get() -> impl IntoResponse {
 #[derive(Deserialize)]
 pub struct SignUp {
     name: String,
+    #[allow(unused)]
     email: String,
+    #[allow(unused)]
     password: String,
     #[serde(rename = "passwordConfirmation")]
+    #[allow(unused)]
     password_confirmation: String,
 }
 
