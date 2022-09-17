@@ -64,12 +64,12 @@ jobs:
                 command: cargo doc --workspace --no-deps
 
       - store_artifacts:
-          path: target/debug/yanwa
-          destination: yanwa
+          path: target/debug/peek
+          destination: peek
       - persist_to_workspace:
           root: target
           paths:
-            - debug/yanwa
+            - debug/peek
 
   check-db-schema:
     docker:
@@ -83,7 +83,7 @@ jobs:
 
       - with-rust-setup:
           do:
-            - run: cargo install sqlx-cli
+            - run: cargo install sqlx-cli --version 0.6.2
 
             - run:
                 name: Setup DB
@@ -103,7 +103,7 @@ jobs:
       - run: echo 'export FLYCTL_INSTALL="/root/.fly"' >> $BASH_ENV
       - run: echo 'export PATH="$FLYCTL_INSTALL/bin:$PATH"' >> $BASH_ENV
 
-      - run: flyctl deploy --app yanwa --remote-only
+      - run: flyctl deploy --app peek --remote-only
 
 workflows:
   version: 2
@@ -122,7 +122,7 @@ workflows:
           no-workspace: true
           cache-key: 'cache-{{ arch }}-{{ .Branch }}-{{ checksum "browser-tests/package.json" }}'
           yarn: true
-          start: ../target/debug/yanwa
+          start: ../target/debug/peek
           post-checkout:
             - attach_workspace:
                 at: target

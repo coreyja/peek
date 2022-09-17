@@ -1,6 +1,8 @@
 /target
 /server/target
 
+.envrc
+
 main.db
 main.db-shm
 main.db-wal

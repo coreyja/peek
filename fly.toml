@@ -1,6 +1,6 @@
-# fly.toml file generated for yanwa on 2022-08-13T15:45:26-04:00
+# fly.toml file generated for peek on 2022-08-13T15:45:26-04:00
 
-app = "yanwa"
+app = "peek"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []
