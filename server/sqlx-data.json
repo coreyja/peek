@@ -1,5 +1,15 @@
 {
   "db": "SQLite",
+  "09bf66942441d1672994da5917df7a5729ffa2a0b4f53a81002ecdabe76ec744": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "UPDATE Sessions SET user_id = ?, updated_at = datetime() WHERE id = ?"
+  },
   "0bb7353d64231dc12416f5504d94513493670e3f2ae017d87a2f0c3eca045f60": {
     "describe": {
       "columns": [
@@ -48,46 +58,6 @@
     },
     "query": "SELECT * FROM Users WHERE email = ?"
   },
-  "1252a98d90252da56fd1e3f56c9dcef4dd04a75063688ceac018588fb6e3c9b4": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Datetime"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Datetime"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 1
-      }
-    },
-    "query": "SELECT * FROM Sessions WHERE id = ?"
-  },
-  "1551e35be15b071dc7a51ad2d845f0e8b28c8f1a861eb761c38524e90872aebb": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 3
-      }
-    },
-    "query": "INSERT INTO Users (name, email, password_hash) VALUES (?, ?, ?)"
-  },
   "87035a1d161f865dff1a53f92d85cea859639136637636586aa978845301ca86": {
     "describe": {
       "columns": [
@@ -106,6 +76,30 @@
     },
     "query": "INSERT INTO Sessions DEFAULT VALUES RETURNING id"
   },
+  "a1743b55480e7bdbee5786e2d1c0156279459736ef385e35d0976d8088da652a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT id, name FROM Users WHERE id = ?"
+  },
   "a8c5744158ae3663e917f5b4b434508ce8bf4ef3b58a9fbfb91be8b4fb02d547": {
     "describe": {
       "columns": [
@@ -123,5 +117,47 @@
       }
     },
     "query": "SELECT COUNT(*) as count FROM Sessions"
+  },
+  "b4cfc28e5a126f7f1f0d279db5798786e0ce9efb098b2ead9e68e2e0abb1ced4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        true
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT id, user_id FROM Sessions WHERE id = ?"
+  },
+  "f902d8f21565097cd0bfeb637c9e5cf8a8dd53416b155bc2628cc4e89ffab204": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "INSERT INTO Users (name, email, password_hash) VALUES (?, ?, ?) RETURNING id"
   }
 }

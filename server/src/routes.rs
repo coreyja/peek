@@ -6,7 +6,7 @@ use axum::{
     Form,
 };
 use maud::html;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tower_cookies::{Cookie, Cookies};
 
 use crate::{
@@ -14,9 +14,19 @@ use crate::{
     CookieKey, Pool,
 };
 
+#[derive(Deserialize, Serialize)]
 pub struct Session {
-    id: i64,
+    pub id: i64,
+    pub user_id: Option<i64>,
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct User {
+    pub id: i64,
+    pub name: String,
+}
+#[derive(Deserialize, Serialize)]
+pub struct CurrentUser(Option<User>);
 
 #[async_trait]
 impl<State> FromRequestParts<State> for Session
@@ -35,37 +45,74 @@ where
         let CookieKey(key) = CookieKey::from_ref(state);
 
         let session_id = cookies.private(&key).get("peek-session-id");
-        let existing_session_id: Option<i64> = if let Some(session_id) = session_id {
+        let existing_session: Option<Session> = if let Some(session_id) = session_id {
             let session_id = session_id.value();
-            sqlx::query!("SELECT * FROM Sessions WHERE id = ?", session_id)
-                .fetch_optional(&pool)
-                .await
-                .unwrap()
-                .map(|session| session.id)
+            sqlx::query_as!(
+                Session,
+                "SELECT id, user_id FROM Sessions WHERE id = ?",
+                session_id
+            )
+            .fetch_optional(&pool)
+            .await
+            .unwrap()
         } else {
             None
         };
-        let session_id = if let Some(session_id) = existing_session_id {
-            session_id
+
+        let session = if let Some(session) = existing_session {
+            session
         } else {
             let session_id = sqlx::query!("INSERT INTO Sessions DEFAULT VALUES RETURNING id")
                 .fetch_one(&pool)
                 .await
                 .unwrap()
                 .id;
-            session_id
+            Session {
+                id: session_id,
+                user_id: None,
+            }
         };
         cookies
             .private(&key)
-            .add(Cookie::new("peek-session-id", session_id.to_string()));
+            .add(Cookie::new("peek-session-id", session.id.to_string()));
 
-        Ok(Session { id: session_id })
+        Ok(session)
     }
 }
 
-pub async fn landing() -> impl IntoResponse {
+#[async_trait]
+impl<State> FromRequestParts<State> for CurrentUser
+where
+    State: Send + Sync,
+    CookieKey: FromRef<State>,
+    Pool: FromRef<State>,
+{
+    type Rejection = Response;
+
+    async fn from_request_parts(parts: &mut Parts, state: &State) -> Result<Self, Self::Rejection> {
+        let session = Session::from_request_parts(parts, state).await?;
+        let user: Option<_> = if let Some(user_id) = session.user_id {
+            let Pool(pool) = Pool::from_ref(state);
+            sqlx::query_as!(User, "SELECT id, name FROM Users WHERE id = ?", user_id)
+                .fetch_optional(&pool)
+                .await
+                .unwrap()
+        } else {
+            None
+        };
+
+        Ok(CurrentUser(user))
+    }
+}
+
+pub async fn landing(current_user: CurrentUser) -> impl IntoResponse {
+    let name = current_user
+        .0
+        .map(|user| user.name)
+        .unwrap_or_else(|| "stranger".into());
+
     templates::base(html! {
-      h1 { "Hello, World!" }
+      h1 { "Hello, " (name) "!" }
 
       a href="/sign-up" { "Sign Up" }
       a href="/sign-in" { "Sign In" }
@@ -137,7 +184,11 @@ use argon2::{
     Argon2,
 };
 
-pub async fn sign_up_post(State(Pool(pool)): State<Pool>, form: Form<SignUp>) -> impl IntoResponse {
+pub async fn sign_up_post(
+    session: Session,
+    State(Pool(pool)): State<Pool>,
+    form: Form<SignUp>,
+) -> impl IntoResponse {
     if form.password != form.password_confirmation {
         return base(html! {
           h1 { "Passwords do not match" }
@@ -153,12 +204,12 @@ pub async fn sign_up_post(State(Pool(pool)): State<Pool>, form: Form<SignUp>) ->
         .to_string();
 
     let insert_result = sqlx::query!(
-        "INSERT INTO Users (name, email, password_hash) VALUES (?, ?, ?)",
+        "INSERT INTO Users (name, email, password_hash) VALUES (?, ?, ?) RETURNING id",
         form.name,
         form.email,
         password_hash
     )
-    .fetch_optional(&pool)
+    .fetch_one(&pool)
     .await;
 
     match insert_result {
@@ -172,13 +223,26 @@ pub async fn sign_up_post(State(Pool(pool)): State<Pool>, form: Form<SignUp>) ->
         Err(err) => {
             panic!("Unexpected error: {:?}", err);
         }
-        Ok(_) => templates::base(html! {
-          h1 { "Hello, " (form.name) "!" }
+        Ok(user_id) => {
+            let _ = ();
 
-          form action="/sign-out" method="post" {
-            input type="submit" value="Sign Out";
-          }
-        }),
+            sqlx::query!(
+                "UPDATE Sessions SET user_id = ?, updated_at = datetime() WHERE id = ?",
+                user_id.id,
+                session.id
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            templates::base(html! {
+                h1 { "Hello, " (form.name) "!" }
+
+                form action="/sign-out" method="post" {
+                    input type="submit" value="Sign Out";
+                }
+            })
+        }
     }
 }
 
@@ -193,9 +257,18 @@ pub async fn root(session: Session, State(Pool(pool)): State<Pool>) -> impl Into
         .unwrap()
         .count;
     templates::base(html! {
-      h1 { "Hello, World!" }
+        h1 { "Hello, World!" }
 
-      p { "We have " (session_count) " sessions." }
-      p { "Your session_id is " (session.id) }
+        p { "We have " (session_count) " sessions." }
+        p { "Your session_id is " (session.id) }
+
+        @match session.user_id {
+            Some(user_id) => {
+                p { "You are signed in as user " (user_id) }
+            }
+            None => {
+                p { "You are not signed in" }
+            }
+       }
     })
 }
