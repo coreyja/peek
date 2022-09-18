@@ -7,6 +7,7 @@ use axum::{
 };
 use maud::html;
 use serde::{Deserialize, Serialize};
+use sqlx::query;
 use tower_cookies::{Cookie, Cookies};
 
 use crate::{
@@ -116,6 +117,10 @@ pub async fn landing(current_user: CurrentUser) -> impl IntoResponse {
 
       a href="/sign-up" { "Sign Up" }
       a href="/sign-in" { "Sign In" }
+
+      form action="/sign-out" method="post" {
+        input type="submit" value="Sign Out";
+      }
     })
 }
 
@@ -149,10 +154,12 @@ pub async fn sign_in_get() -> impl IntoResponse {
 #[derive(Deserialize)]
 pub struct SignInForm {
     email: String,
+    #[allow(unused)]
     password: String,
 }
 
 pub async fn sign_in_post(
+    session: Session,
     State(Pool(pool)): State<Pool>,
     Form(form): Form<SignInForm>,
 ) -> impl IntoResponse {
@@ -161,6 +168,15 @@ pub async fn sign_in_post(
         .await
         .unwrap()
         .unwrap();
+
+    query!(
+        "UPDATE Sessions SET user_id = ? WHERE id = ?",
+        user.id,
+        session.id
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
 
     templates::base(html! {
       h1 { "Hello, " (user.name) "!" }
@@ -188,11 +204,12 @@ pub async fn sign_up_post(
     session: Session,
     State(Pool(pool)): State<Pool>,
     form: Form<SignUp>,
-) -> impl IntoResponse {
+) -> Response {
     if form.password != form.password_confirmation {
         return base(html! {
           h1 { "Passwords do not match" }
-        });
+        })
+        .into_response();
     }
 
     let salt = SaltString::generate(&mut OsRng);
@@ -219,13 +236,12 @@ pub async fn sign_up_post(
             templates::base(html! {
               h3 { "Email has already been taken" }
             })
+            .into_response()
         }
         Err(err) => {
             panic!("Unexpected error: {:?}", err);
         }
         Ok(user_id) => {
-            let _ = ();
-
             sqlx::query!(
                 "UPDATE Sessions SET user_id = ?, updated_at = datetime() WHERE id = ?",
                 user_id.id,
@@ -235,19 +251,21 @@ pub async fn sign_up_post(
             .await
             .unwrap();
 
-            templates::base(html! {
-                h1 { "Hello, " (form.name) "!" }
-
-                form action="/sign-out" method="post" {
-                    input type="submit" value="Sign Out";
-                }
-            })
+            Redirect::to("/").into_response()
         }
     }
 }
 
-pub async fn sign_out() -> impl IntoResponse {
-    Redirect::to("/").into_response()
+pub async fn sign_out(session: Session, State(Pool(pool)): State<Pool>) -> impl IntoResponse {
+    query!(
+        "UPDATE Sessions SET user_id = NULL, updated_at = datetime() WHERE id = ?",
+        session.id
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    Redirect::to("/")
 }
 
 pub async fn root(session: Session, State(Pool(pool)): State<Pool>) -> impl IntoResponse {

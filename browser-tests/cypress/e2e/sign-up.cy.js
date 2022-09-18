@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 
 describe('Sign Up', () => {
-  it('creates a new Account', () => {
+  it('creates a new Account, and then signs in with it', () => {
     cy.visit('http://localhost:3000/');
 
     cy.contains('Sign Up').click();
@@ -17,6 +17,8 @@ describe('Sign Up', () => {
     cy.contains('Hello, Emily Thompson!');
 
     cy.contains('Sign Out').click();
+
+    cy.contains('Hello, stranger!');
 
     cy.contains('Sign In').click();
 
