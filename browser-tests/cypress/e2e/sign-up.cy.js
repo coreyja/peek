@@ -25,6 +25,10 @@ describe('Sign Up', () => {
     cy.get('input[type="submit"]').click();
 
     cy.contains('Hello, Emily Thompson!');
+
+    cy.visit('http://localhost:3000/');
+
+    cy.contains('Hello, Emily Thompson!');
   })
 
   it('errors when the email is already taken', () => {
