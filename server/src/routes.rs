@@ -150,13 +150,12 @@ pub async fn sign_in_get(query: Query<SignInQuery>) -> impl IntoResponse {
     templates::base(html! {
       h1 { "Sign In" }
 
-      @match query.flash.as_ref() {
-        Some(flash) => @if flash == "incorrect" {
+      @if let Some(flash) =  query.flash.as_ref() {
+        @if flash == "incorrect" {
           p { "Incorrect email and/or password" }
         } @else {
             p { "unknown flash" }
-        },
-        _ => {}
+        }
       }
 
       form action="/sign-in" method="post" {
@@ -195,12 +194,12 @@ pub async fn sign_in_post(
         .fetch_optional(&pool)
         .await
         .unwrap()
-        .ok_or_else(|| SignInError::UserNotFound)?;
+        .ok_or(SignInError::UserNotFound)?;
 
     let hash = PasswordHash::new(&user.password_hash).unwrap();
     let argon2 = argon2::Argon2::default();
     if argon2
-        .verify_password(&form.password.as_bytes(), &hash)
+        .verify_password(form.password.as_bytes(), &hash)
         .is_ok()
     {
         query!(
