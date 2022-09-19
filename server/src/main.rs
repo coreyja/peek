@@ -5,7 +5,7 @@
 
 use axum::{extract::FromRef, routing::*, Router};
 use sqlx::{migrate, SqlitePool};
-use std::net::SocketAddr;
+use std::{fs::OpenOptions, net::SocketAddr};
 use tower_cookies::{CookieManagerLayer, Key};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{prelude::*, EnvFilter};
@@ -48,11 +48,19 @@ async fn main() {
         .with(HierarchicalLayer::new(3))
         .init();
 
-    let pool = SqlitePool::connect(
-        &std::env::var("DATABASE_URL").unwrap_or_else(|_| "sqlite::memory:".into()),
-    )
-    .await
-    .unwrap();
+    let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
+        let path = std::env::var("DATABASE_PATH");
+
+        if let Ok(p) = &path {
+            OpenOptions::new().create(true).open(p).unwrap();
+
+            format!("sqlite:{}", p)
+        } else {
+            "sqlite::memory:".to_string()
+        }
+    });
+
+    let pool = SqlitePool::connect(&database_url).await.unwrap();
 
     migrate!("./migrations/").run(&pool).await.unwrap();
 

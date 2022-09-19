@@ -10,7 +10,6 @@ processes = []
   destination="/data"
 
 [env]
-  DATABASE_URL="sqlite:/data/main.db"
 
 [experimental]
   allowed_public_ports = []
