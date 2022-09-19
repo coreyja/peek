@@ -6,8 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+argon2 = "0.4.1"
 axum = "0.6.0-rc.1"
+chrono = { version = "0.4.22", features = ["serde"] }
 maud = { features = ["axum"], git = "https://github.com/coreyja/maud", branch = "ca/main/axum-0.6" }
+rand_core = { version = "0.6.3", features = ["std"] }
 serde = { version = "1.0.143", features = ["derive"] }
 sqlx = { version = "0.6.2", features = ["sqlite", "runtime-tokio-rustls", "chrono", "offline"] }
 tokio = { version = "1.20.1", features = ["full"] }

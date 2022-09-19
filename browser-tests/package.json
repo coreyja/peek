@@ -4,5 +4,8 @@
   "private": true,
   "devDependencies": {
     "cypress": "^10.4.0"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^7.5.0"
   }
 }
