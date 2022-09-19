@@ -1,6 +1,6 @@
 use axum::{
     async_trait,
-    extract::{FromRef, FromRequestParts, State},
+    extract::{FromRef, FromRequestParts, Query, State},
     http::request::Parts,
     response::{IntoResponse, Redirect, Response},
     Form,
@@ -124,9 +124,15 @@ pub async fn landing(current_user: CurrentUser) -> impl IntoResponse {
     })
 }
 
+#[derive(Deserialize, Debug)]
+pub struct SignInQuery {
+    flash: Option<String>,
+}
+
 pub async fn sign_up_get() -> impl IntoResponse {
     templates::base(html! {
       h1 { "Create Account" }
+
 
       form action="/sign-up" method="post" {
         input type="text" name="name" placeholder="Name";
@@ -138,9 +144,20 @@ pub async fn sign_up_get() -> impl IntoResponse {
     })
 }
 
-pub async fn sign_in_get() -> impl IntoResponse {
+pub async fn sign_in_get(query: Query<SignInQuery>) -> impl IntoResponse {
+    dbg!(&query);
+
     templates::base(html! {
       h1 { "Sign In" }
+
+      @match query.flash.as_ref() {
+        Some(flash) => @if flash == "incorrect" {
+          p { "Incorrect email and/or password" }
+        } @else {
+            p { "unknown flash" }
+        },
+        _ => {}
+      }
 
       form action="/sign-in" method="post" {
         input type="email" name="email" placeholder="Email";
@@ -158,29 +175,47 @@ pub struct SignInForm {
     password: String,
 }
 
+pub enum SignInError {
+    InvalidCredentials,
+    UserNotFound,
+}
+
+impl IntoResponse for SignInError {
+    fn into_response(self) -> Response {
+        Redirect::to("/sign-in?flash=incorrect").into_response()
+    }
+}
+
 pub async fn sign_in_post(
     session: Session,
     State(Pool(pool)): State<Pool>,
     Form(form): Form<SignInForm>,
-) -> impl IntoResponse {
+) -> Result<Response, SignInError> {
     let user = sqlx::query!("SELECT * FROM Users WHERE email = ?", form.email)
         .fetch_optional(&pool)
         .await
         .unwrap()
+        .ok_or_else(|| SignInError::UserNotFound)?;
+
+    let hash = PasswordHash::new(&user.password_hash).unwrap();
+    let argon2 = argon2::Argon2::default();
+    if argon2
+        .verify_password(&form.password.as_bytes(), &hash)
+        .is_ok()
+    {
+        query!(
+            "UPDATE Sessions SET user_id = ? WHERE id = ?",
+            user.id,
+            session.id
+        )
+        .execute(&pool)
+        .await
         .unwrap();
 
-    query!(
-        "UPDATE Sessions SET user_id = ? WHERE id = ?",
-        user.id,
-        session.id
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    templates::base(html! {
-      h1 { "Hello, " (user.name) "!" }
-    })
+        Ok(Redirect::to("/").into_response())
+    } else {
+        Err(SignInError::InvalidCredentials)
+    }
 }
 
 #[derive(Deserialize)]
@@ -197,7 +232,7 @@ pub struct SignUp {
 
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
-    Argon2,
+    Argon2, PasswordHash, PasswordVerifier,
 };
 
 pub async fn sign_up_post(
