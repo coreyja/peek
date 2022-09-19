@@ -58,6 +58,16 @@
     },
     "query": "SELECT * FROM Users WHERE email = ?"
   },
+  "3c9c81b139ed83762730dffba4803f85eda46fbf0feb4b8088d57de45a5cd555": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "UPDATE Sessions SET user_id = NULL, updated_at = datetime() WHERE id = ?"
+  },
   "87035a1d161f865dff1a53f92d85cea859639136637636586aa978845301ca86": {
     "describe": {
       "columns": [
@@ -141,6 +151,16 @@
       }
     },
     "query": "SELECT id, user_id FROM Sessions WHERE id = ?"
+  },
+  "de3bfa5b6b40745cabd3569ac577e288e7294301fdfc0981378f4c4dfd3c4a47": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "UPDATE Sessions SET user_id = ? WHERE id = ?"
   },
   "f902d8f21565097cd0bfeb637c9e5cf8a8dd53416b155bc2628cc4e89ffab204": {
     "describe": {
