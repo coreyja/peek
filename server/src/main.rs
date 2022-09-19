@@ -5,7 +5,7 @@
 
 use axum::{extract::FromRef, routing::*, Router};
 use sqlx::{migrate, SqlitePool};
-use std::{fs::OpenOptions, net::SocketAddr, path::Path};
+use std::{fs::OpenOptions, net::SocketAddr};
 use tower_cookies::{CookieManagerLayer, Key};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{prelude::*, EnvFilter};
