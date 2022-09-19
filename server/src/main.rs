@@ -5,7 +5,7 @@
 
 use axum::{extract::FromRef, routing::*, Router};
 use sqlx::{migrate, SqlitePool};
-use std::{fs::OpenOptions, net::SocketAddr};
+use std::{fs::OpenOptions, net::SocketAddr, path::Path};
 use tower_cookies::{CookieManagerLayer, Key};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{prelude::*, EnvFilter};
@@ -52,7 +52,7 @@ async fn main() {
         let path = std::env::var("DATABASE_PATH");
 
         if let Ok(p) = &path {
-            OpenOptions::new().create(true).open(p).unwrap();
+            OpenOptions::new().write(true).create(true).open(p).unwrap();
 
             format!("sqlite:{}", p)
         } else {
