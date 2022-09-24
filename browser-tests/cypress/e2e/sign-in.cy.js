@@ -33,7 +33,7 @@ describe('Sign In', () => {
     cy.contains('Hello, Emily Thompson!');
   })
 
-  it('redirects to root when password is wrong', () => {
+  it('redirects with message when password is wrong', () => {
     cy.visit('http://localhost:3000/');
 
     cy.contains('Sign Up').click();
@@ -61,7 +61,7 @@ describe('Sign In', () => {
     cy.contains('Incorrect email and/or password');
   })
 
-  it('redirects to root when the user does not exist', () => {
+  it('redirects with message when the user does not exist', () => {
     cy.visit('http://localhost:3000/');
 
     cy.contains('Sign In').click();
