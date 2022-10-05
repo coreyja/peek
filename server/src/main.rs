@@ -11,6 +11,7 @@ use tower_http::trace::TraceLayer;
 use tracing_subscriber::{prelude::*, EnvFilter};
 use tracing_tree::HierarchicalLayer;
 
+mod auth;
 mod routes;
 mod templates;
 
@@ -72,13 +73,16 @@ async fn main() {
     let state = AppState { pool, key };
 
     let app = Router::with_state(state)
+        // Root Route
         .route("/", get(routes::landing))
-        .route("/sign-in", get(routes::sign_in_get))
-        .route("/sign-in", post(routes::sign_in_post))
-        .route("/sign-up", get(routes::sign_up_get))
-        .route("/sign-up", post(routes::sign_up_post))
-        .route("/sign-out", post(routes::sign_out))
-        .route("/team", get(routes::root))
+        // Auth Routes
+        .route("/sign-in", get(routes::auth::sign_in::get::router))
+        .route("/sign-in", post(routes::auth::sign_in::post::router))
+        .route("/sign-up", get(routes::auth::sign_up::get))
+        .route("/sign-up", post(routes::auth::sign_up::post::router))
+        .route("/sign-out", post(routes::auth::sign_out))
+        // Old Route, basically a legacy page at this point
+        .route("/team", get(routes::team))
         .layer(TraceLayer::new_for_http())
         .layer(CookieManagerLayer::new());
 
