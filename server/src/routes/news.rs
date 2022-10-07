@@ -22,7 +22,7 @@ pub(crate) mod post {
     use serde::Deserialize;
 
     use crate::{
-        external_apis::bing_news::{get_news, Creds},
+        external_apis::bing_news::{get_news, Config},
         templates::base,
     };
 
@@ -32,7 +32,7 @@ pub(crate) mod post {
     }
 
     pub(crate) async fn router(Form(query): Form<NewsQuery>) -> impl IntoResponse {
-        let creds = Creds::from_env().unwrap();
+        let creds = Config::from_env().unwrap();
 
         let results = get_news(&creds, &query.q).await;
 

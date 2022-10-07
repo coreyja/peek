@@ -1,26 +1,28 @@
+use color_eyre::{eyre::Context, Result};
 use serde::Deserialize;
 
-/// The credentials for the Bing News API
-pub struct Creds {
+/// The configuration for the Bing News API
+pub struct Config {
     api_key: String,
+    base_url: String,
 }
 
-impl Creds {
+impl Config {
     /// Create a new set of credentials from the environment
     ///
-    /// If the required environment variables are not set, this returns None
+    /// If the required environment variables are not set, this returns an error
     ///
     /// Note: This does NOT validate the API key provided, it only checks that the environment variable is set
-    pub fn from_env() -> Option<Self> {
-        let api_key = std::env::var("BING_NEWS_API_KEY");
+    pub fn from_env() -> Result<Self> {
+        let api_key = std::env::var("BING_NEWS_API_KEY").wrap_err("BING_NEWS_API_KEY not set")?;
+        let base_url =
+            std::env::var("BING_NEWS_BASE_URL").wrap_err("BING_NEWS_BASE_URL not set")?;
 
-        api_key.ok().map(|api_key| Self { api_key })
+        Ok(Self { api_key, base_url })
     }
 }
 
-const BING_NEWS_API_URL: &str = "https://api.bing.microsoft.com/v7.0/news/search";
-
-fn generate_client(creds: &Creds) -> Result<reqwest::Client, reqwest::Error> {
+fn generate_client(creds: &Config) -> Result<reqwest::Client, reqwest::Error> {
     let mut headers = reqwest::header::HeaderMap::new();
     let mut header_value = reqwest::header::HeaderValue::from_str(&creds.api_key).unwrap();
     header_value.set_sensitive(true);
@@ -57,7 +59,7 @@ pub(crate) struct NewsResult {
     #[serde(rename = "datePublished")]
     date_published: chrono::DateTime<chrono::Utc>,
     category: Option<String>,
-    image: NewsImage,
+    image: Option<NewsImage>,
 }
 #[derive(Deserialize, Debug)]
 pub(crate) struct NewsResponse {
@@ -65,14 +67,21 @@ pub(crate) struct NewsResponse {
 }
 
 /// Get the top 10 news articles from Bing News
-pub(crate) async fn get_news(creds: &Creds, query: &str) -> NewsResponse {
-    let client = generate_client(creds).unwrap();
+pub(crate) async fn get_news(config: &Config, query: &str) -> Result<NewsResponse> {
+    const NEWS_SEARCH_PATH: &str = "/v7.0/news/search";
+
+    let base_url = &config.base_url;
+    let url = format!("{base_url}{NEWS_SEARCH_PATH}");
+
+    let client = generate_client(config).unwrap();
     let res = client
-        .get(BING_NEWS_API_URL)
-        .query(&[("q", query), ("count", "10")])
+        .get(url)
+        .query(&[("q", query), ("count", "10"), ("safeSearch", "strict")])
         .send()
         .await
         .unwrap();
 
-    res.json().await.unwrap()
+    res.json()
+        .await
+        .wrap_err("We couldn't talk to the API or were unable to parse the JSON")
 }
