@@ -24,6 +24,8 @@ pub struct User {
     pub name: String,
 }
 
+const SESSION_COOKIE_KEY: &str = "peek-session-id";
+
 #[async_trait]
 impl<State> FromRequestParts<State> for Session
 where
@@ -40,7 +42,7 @@ where
             .map_err(|err| err.into_response())?;
         let CookieKey(key) = CookieKey::from_ref(state);
 
-        let session_id = cookies.private(&key).get("peek-session-id");
+        let session_id = cookies.private(&key).get(SESSION_COOKIE_KEY);
         let existing_session: Option<Session> = if let Some(session_id) = session_id {
             let session_id = session_id.value();
             sqlx::query_as!(
@@ -70,7 +72,7 @@ where
         };
         cookies
             .private(&key)
-            .add(Cookie::new("peek-session-id", session.id.to_string()));
+            .add(Cookie::new(SESSION_COOKIE_KEY, session.id.to_string()));
 
         Ok(session)
     }

@@ -11,7 +11,9 @@ axum = "0.6.0-rc.1"
 chrono = { version = "0.4.22", features = ["serde"] }
 maud = { features = ["axum"], git = "https://github.com/coreyja/maud", branch = "ca/main/axum-0.6" }
 rand_core = { version = "0.6.3", features = ["std"] }
+reqwest = { version = "0.11.12", features = ["json", "rustls-tls"] }
 serde = { version = "1.0.143", features = ["derive"] }
+serde_json = "1.0.85"
 sqlx = { version = "0.6.2", features = ["sqlite", "runtime-tokio-rustls", "chrono", "offline"] }
 tokio = { version = "1.20.1", features = ["full"] }
 tower-cookies = { git = "https://github.com/coreyja/tower-cookies", branch = "ca/main/axum-0.6", features = ["private", "signed"] }

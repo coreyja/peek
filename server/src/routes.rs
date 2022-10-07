@@ -7,6 +7,7 @@ use crate::{templates, Pool};
 use crate::auth::{CurrentUser, Session};
 
 pub(crate) mod auth;
+pub(crate) mod news;
 
 pub async fn landing(current_user: CurrentUser) -> impl IntoResponse {
     let name = current_user

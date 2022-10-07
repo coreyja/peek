@@ -15,6 +15,9 @@ mod auth;
 mod routes;
 mod templates;
 
+/// The External APIs for Peek
+pub mod external_apis;
+
 /// Holder of the [Key] we use for Cookies
 #[derive(Clone)]
 pub struct CookieKey(Key);
@@ -81,6 +84,9 @@ async fn main() {
         .route("/sign-up", get(routes::auth::sign_up::get))
         .route("/sign-up", post(routes::auth::sign_up::post::router))
         .route("/sign-out", post(routes::auth::sign_out))
+        // Bing News Search
+        .route("/news", get(routes::news::get::router))
+        .route("/news", post(routes::news::post::router))
         // Old Route, basically a legacy page at this point
         .route("/team", get(routes::team))
         .layer(TraceLayer::new_for_http())
