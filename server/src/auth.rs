@@ -1,6 +1,11 @@
-use axum::{async_trait, extract::{FromRequestParts, FromRef}, response::{Response, IntoResponse}, http::request::Parts};
+use axum::{
+    async_trait,
+    extract::{FromRef, FromRequestParts},
+    http::request::Parts,
+    response::{IntoResponse, Response},
+};
 use serde::{Deserialize, Serialize};
-use tower_cookies::{Cookies, Cookie};
+use tower_cookies::{Cookie, Cookies};
 
 use crate::{CookieKey, Pool};
 

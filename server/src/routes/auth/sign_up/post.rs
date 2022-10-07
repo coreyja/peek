@@ -1,85 +1,85 @@
 #[derive(Deserialize)]
-    pub struct SignUp {
-        name: String,
-        #[allow(unused)]
-        email: String,
-        #[allow(unused)]
-        password: String,
-        #[serde(rename = "passwordConfirmation")]
-        #[allow(unused)]
-        password_confirmation: String,
+pub struct SignUp {
+    name: String,
+    #[allow(unused)]
+    email: String,
+    #[allow(unused)]
+    password: String,
+    #[serde(rename = "passwordConfirmation")]
+    #[allow(unused)]
+    password_confirmation: String,
+}
+
+use argon2::{
+    password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
+    Argon2,
+};
+use axum::{
+    extract::State,
+    response::{IntoResponse, Redirect, Response},
+    Form,
+};
+use maud::html;
+use serde::Deserialize;
+
+use crate::{
+    auth::Session,
+    templates::{self, base},
+    Pool,
+};
+
+pub async fn router(
+    session: Session,
+    State(Pool(pool)): State<Pool>,
+    form: Form<SignUp>,
+) -> Response {
+    if form.password != form.password_confirmation {
+        return base(html! {
+          h1 { "Passwords do not match" }
+        })
+        .into_response();
     }
 
-    use argon2::{
-        password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
-        Argon2,
-    };
-    use axum::{
-        extract::State,
-        response::{IntoResponse, Redirect, Response},
-        Form,
-    };
-    use maud::html;
-    use serde::Deserialize;
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
 
-    use crate::{
-        auth::Session,
-        templates::{self, base},
-        Pool,
-    };
+    let password_hash = argon2
+        .hash_password(form.password.as_bytes(), &salt)
+        .unwrap()
+        .to_string();
 
-    pub async fn router(
-        session: Session,
-        State(Pool(pool)): State<Pool>,
-        form: Form<SignUp>,
-    ) -> Response {
-        if form.password != form.password_confirmation {
-            return base(html! {
-              h1 { "Passwords do not match" }
+    let insert_result = sqlx::query!(
+        "INSERT INTO Users (name, email, password_hash) VALUES (?, ?, ?) RETURNING id",
+        form.name,
+        form.email,
+        password_hash
+    )
+    .fetch_one(&pool)
+    .await;
+
+    match insert_result {
+        Err(sqlx::Error::Database(err)) => {
+            assert_eq!(err.code().unwrap(), "2067", "Unexpected error code");
+
+            templates::base(html! {
+              h3 { "Email has already been taken" }
             })
-            .into_response();
+            .into_response()
         }
+        Err(err) => {
+            panic!("Unexpected error: {:?}", err);
+        }
+        Ok(user_id) => {
+            sqlx::query!(
+                "UPDATE Sessions SET user_id = ?, updated_at = datetime() WHERE id = ?",
+                user_id.id,
+                session.id
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
 
-        let salt = SaltString::generate(&mut OsRng);
-        let argon2 = Argon2::default();
-
-        let password_hash = argon2
-            .hash_password(form.password.as_bytes(), &salt)
-            .unwrap()
-            .to_string();
-
-        let insert_result = sqlx::query!(
-            "INSERT INTO Users (name, email, password_hash) VALUES (?, ?, ?) RETURNING id",
-            form.name,
-            form.email,
-            password_hash
-        )
-        .fetch_one(&pool)
-        .await;
-
-        match insert_result {
-            Err(sqlx::Error::Database(err)) => {
-                assert_eq!(err.code().unwrap(), "2067", "Unexpected error code");
-
-                templates::base(html! {
-                  h3 { "Email has already been taken" }
-                })
-                .into_response()
-            }
-            Err(err) => {
-                panic!("Unexpected error: {:?}", err);
-            }
-            Ok(user_id) => {
-                sqlx::query!(
-                    "UPDATE Sessions SET user_id = ?, updated_at = datetime() WHERE id = ?",
-                    user_id.id,
-                    session.id
-                )
-                .execute(&pool)
-                .await
-                .unwrap();
-
-                Redirect::to("/").into_response()
-            }
+            Redirect::to("/").into_response()
         }
     }
+}
