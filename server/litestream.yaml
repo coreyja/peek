@@ -1,4 +1,7 @@
 dbs:
  -  path: $DATABASE_PATH
     replicas:
-      - url: s3://peek-backups/main-db
+      - type: s3
+        bucket: peek-backups
+        path:   main-db
+        region: us-east-1
