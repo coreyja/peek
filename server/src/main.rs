@@ -15,6 +15,11 @@ mod auth;
 mod routes;
 mod templates;
 
+/// The External APIs for Peek
+pub mod external_apis;
+
+use color_eyre::eyre::Result;
+
 /// Holder of the [Key] we use for Cookies
 #[derive(Clone)]
 pub struct CookieKey(Key);
@@ -41,7 +46,9 @@ struct AppState {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
+    color_eyre::install()?;
+
     tracing_subscriber::registry()
         .with(EnvFilter::new(
             std::env::var("RUST_LOG").unwrap_or_else(|_| "peek=debug,tower_http=debug".into()),
@@ -61,9 +68,9 @@ async fn main() {
         }
     });
 
-    let pool = SqlitePool::connect(&database_url).await.unwrap();
+    let pool = SqlitePool::connect(&database_url).await?;
 
-    migrate!("./migrations/").run(&pool).await.unwrap();
+    migrate!("./migrations/").run(&pool).await?;
 
     let pool = Pool(pool);
 
@@ -78,9 +85,12 @@ async fn main() {
         // Auth Routes
         .route("/sign-in", get(routes::auth::sign_in::get::router))
         .route("/sign-in", post(routes::auth::sign_in::post::router))
-        .route("/sign-up", get(routes::auth::sign_up::get))
+        .route("/sign-up", get(routes::auth::sign_up::get::router))
         .route("/sign-up", post(routes::auth::sign_up::post::router))
         .route("/sign-out", post(routes::auth::sign_out))
+        // Bing News Search
+        .route("/news", get(routes::news::get::router))
+        .route("/news", post(routes::news::post::router))
         // Old Route, basically a legacy page at this point
         .route("/team", get(routes::team))
         .layer(TraceLayer::new_for_http())
@@ -90,6 +100,7 @@ async fn main() {
     tracing::debug!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
-        .await
-        .unwrap();
+        .await?;
+
+    Ok(())
 }

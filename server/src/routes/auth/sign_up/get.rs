@@ -3,7 +3,7 @@ use maud::html;
 
 use crate::templates;
 
-pub async fn get() -> impl IntoResponse {
+pub async fn router() -> impl IntoResponse {
     templates::base(html! {
       h1 { "Create Account" }
 
@@ -17,5 +17,3 @@ pub async fn get() -> impl IntoResponse {
       }
     })
 }
-
-pub(crate) mod post;

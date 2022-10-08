@@ -21,12 +21,20 @@ RUN touch server/src/main.rs
 
 RUN cargo build --release --locked --bin peek
 
+# Download the static build of Litestream directly into the path & make it executable.
+# This is done in the builder and copied as the chmod doubles the size.
+ADD https://github.com/benbjohnson/litestream/releases/download/v0.3.9/litestream-v0.3.9-linux-amd64-static.tar.gz /tmp/litestream.tar.gz
+RUN tar -C /usr/local/bin -xzf /tmp/litestream.tar.gz
+
 # Start building the final image
 FROM debian:buster-slim
 WORKDIR /home/rust/
 COPY --from=builder /home/rust/target/release/peek .
 
+COPY --from=builder /usr/local/bin/litestream /usr/local/bin/litestream
+
+COPY ./server/litestream.yaml /etc/litestream.yaml
+
 EXPOSE 3000
 
-ENTRYPOINT ["./peek"]
-
+ENTRYPOINT ["litestream", "replicate", "--config", "/etc/litestream.yaml", "--exec", "./peek"]

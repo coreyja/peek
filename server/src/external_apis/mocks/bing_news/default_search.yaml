@@ -1,0 +1,9 @@
+when:
+  method: GET
+  path: /v7.0/news/search
+  header_exists:
+    - Ocp-Apim-Subscription-Key
+then:
+  status: 200
+  body: |-
+    {"value": []}

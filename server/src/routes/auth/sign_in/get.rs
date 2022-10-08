@@ -8,6 +8,7 @@ use crate::templates;
 pub struct SignInQuery {
     flash: Option<String>,
 }
+
 pub async fn router(query: Query<SignInQuery>) -> impl IntoResponse {
     dbg!(&query);
 

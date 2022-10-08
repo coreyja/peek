@@ -1,0 +1,4 @@
+dbs:
+ -  path: $DATABASE_PATH
+    replicas:
+      - url: s3://peek-backups/main-db
