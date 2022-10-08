@@ -38,4 +38,3 @@ COPY ./server/litestream.yaml /etc/litestream.yaml
 EXPOSE 3000
 
 ENTRYPOINT ["litestream", "replicate", "--config", "/etc/litestream.yaml", "--exec", "./peek"]
-
