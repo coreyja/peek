@@ -17,6 +17,8 @@ commands: # a reusable command with parameters
           name: Print Rust Versions
           command: rustc --version; cargo --version; rustup --version
 
+      - run: apt install -y protobuf-compiler
+
       - steps: << parameters.do >>
 jobs:
   lint-rust:

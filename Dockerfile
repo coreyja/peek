@@ -6,6 +6,10 @@ USER root
 
 RUN rustc --version; cargo --version; rustup --version
 
+RUN apt-get update && apt-get install -y \
+    protobuf-compiler \
+    && rm -rf /var/lib/apt/lists/*
+
 # Avoid having to install/build all dependencies by copying
 # the Cargo files and making a dummy src/main.rs
 COPY Cargo.toml .
