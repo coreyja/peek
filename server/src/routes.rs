@@ -1,6 +1,7 @@
 use axum::extract::State;
 use axum::response::IntoResponse;
 use maud::html;
+use tracing::info;
 
 use crate::{templates, Pool};
 
@@ -14,6 +15,8 @@ pub async fn landing(current_user: CurrentUser) -> impl IntoResponse {
         .0
         .map(|user| user.name)
         .unwrap_or_else(|| "stranger".into());
+
+    info!("Landing page for {}", name);
 
     templates::base(html! {
       h1 { "Hello, " (name) "!" }
