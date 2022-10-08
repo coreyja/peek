@@ -12,7 +12,7 @@ chrono = { version = "0.4.22", features = ["serde"] }
 color-eyre = "0.6.2"
 maud = { features = ["axum"], git = "https://github.com/coreyja/maud", branch = "ca/main/axum-0.6" }
 opentelemetry = { version = "0.18.0", features = ["rt-tokio"], default-features = false }
-opentelemetry-otlp = { version = "0.11.0", features = ["http-proto", "reqwest-rustls"], default-features = false }
+opentelemetry-otlp = { version = "0.11.0", features = ["http-proto", "reqwest-rustls", "reqwest-client"], default-features = false }
 rand_core = { version = "0.6.3", features = ["std"] }
 reqwest = { version = "0.11.12", features = ["json", "rustls-tls"], default-features = false }
 serde = { version = "1.0.143", features = ["derive"] }
