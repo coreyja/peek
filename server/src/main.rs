@@ -62,7 +62,7 @@ async fn main() -> Result<()> {
             .with_exporter(
                 opentelemetry_otlp::new_exporter()
                     .http()
-                    .with_endpoint("https://api.honeycomb.io")
+                    .with_endpoint("https://api.honeycomb.io/v1/traces")
                     .with_timeout(Duration::from_secs(3))
                     .with_headers(map),
             )
