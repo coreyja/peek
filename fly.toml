@@ -11,6 +11,7 @@ processes = []
 
 [env]
   DATABASE_PATH="/data/peek.db"
+  OTEL_SERVICE_NAME="peek-fly"
 
 [experimental]
   allowed_public_ports = []
