@@ -187,12 +187,12 @@ dependencies = [
 
 [[package]]
 name = "axum"
-version = "0.6.0-rc.1"
+version = "0.6.0-rc.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d49958d54e0bab71947eb00a33175eb9164ccc0ea4c262d2139c5f8899a3616e"
+checksum = "d2628a243073c55aef15a1c1fe45c87f21b84f9e89ca9e7b262a180d3d03543d"
 dependencies = [
  "async-trait",
- "axum-core 0.3.0-rc.1",
+ "axum-core 0.3.0-rc.2",
  "bitflags",
  "bytes",
  "futures-util",
@@ -234,9 +234,9 @@ dependencies = [
 
 [[package]]
 name = "axum-core"
-version = "0.3.0-rc.1"
+version = "0.3.0-rc.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e52ebadfce2f1e7fec9b2dd920952477ffeac9f07a5c492c0cbba2bb22cd294"
+checksum = "473bd0762170028bb6b5068be9e97de2a9f0af3bf2084498d840498f47194d3d"
 dependencies = [
  "async-trait",
  "bytes",
@@ -244,6 +244,8 @@ dependencies = [
  "http",
  "http-body",
  "mime",
+ "tower-layer",
+ "tower-service",
 ]
 
 [[package]]
@@ -1078,7 +1080,7 @@ name = "maud"
 version = "0.23.0"
 source = "git+https://github.com/coreyja/maud?branch=ca/main/axum-0.6#4ccf020feb4fea184b465968c3771bc5778e5f13"
 dependencies = [
- "axum-core 0.3.0-rc.1",
+ "axum-core 0.3.0-rc.2",
  "http",
  "itoa 0.4.8",
  "maud_macros",
@@ -1400,7 +1402,7 @@ name = "peek"
 version = "0.1.0"
 dependencies = [
  "argon2",
- "axum 0.6.0-rc.1",
+ "axum 0.6.0-rc.2",
  "chrono",
  "color-eyre",
  "maud",
@@ -2312,7 +2314,7 @@ version = "0.7.0"
 source = "git+https://github.com/coreyja/tower-cookies?branch=ca/main/axum-0.6#363b779a45b8573695d32e196cd158b7131883da"
 dependencies = [
  "async-trait",
- "axum-core 0.3.0-rc.1",
+ "axum-core 0.3.0-rc.2",
  "cookie",
  "futures-util",
  "http",

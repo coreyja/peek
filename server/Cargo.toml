@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 argon2 = "0.4.1"
-axum = "0.6.0-rc.1"
+axum = "0.6.0-rc.2"
 chrono = { version = "0.4.22", features = ["serde"] }
 color-eyre = "0.6.2"
 maud = { features = ["axum"], git = "https://github.com/coreyja/maud", branch = "ca/main/axum-0.6" }
