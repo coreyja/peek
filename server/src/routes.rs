@@ -1,7 +1,7 @@
 use axum::extract::State;
 use axum::response::IntoResponse;
 use maud::html;
-use tracing::info;
+use tracing::{info, instrument};
 
 use crate::{templates, Pool};
 
@@ -10,6 +10,7 @@ use crate::auth::{CurrentUser, Session};
 pub(crate) mod auth;
 pub(crate) mod news;
 
+#[instrument]
 pub async fn landing(current_user: CurrentUser) -> impl IntoResponse {
     let name = current_user
         .0
@@ -30,6 +31,7 @@ pub async fn landing(current_user: CurrentUser) -> impl IntoResponse {
     })
 }
 
+#[instrument(skip(pool))]
 pub async fn team(session: Session, State(Pool(pool)): State<Pool>) -> impl IntoResponse {
     let session_count = sqlx::query!("SELECT COUNT(*) as count FROM Sessions")
         .fetch_one(&pool)

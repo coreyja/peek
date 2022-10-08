@@ -6,19 +6,20 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use tower_cookies::{Cookie, Cookies};
+use tracing::instrument;
 
 use crate::{CookieKey, Pool};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct CurrentUser(pub(crate) Option<User>);
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Session {
     pub id: i64,
     pub user_id: Option<i64>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct User {
     pub id: i64,
     pub name: String,
@@ -35,6 +36,7 @@ where
 {
     type Rejection = Response;
 
+    #[instrument(skip_all, ret)]
     async fn from_request_parts(parts: &mut Parts, state: &State) -> Result<Self, Self::Rejection> {
         let Pool(pool) = Pool::from_ref(state);
         let cookies: Cookies = Cookies::from_request_parts(parts, state)
@@ -87,6 +89,7 @@ where
 {
     type Rejection = Response;
 
+    #[instrument(skip_all, ret)]
     async fn from_request_parts(parts: &mut Parts, state: &State) -> Result<Self, Self::Rejection> {
         let session = Session::from_request_parts(parts, state).await?;
         let user: Option<_> = if let Some(user_id) = session.user_id {
