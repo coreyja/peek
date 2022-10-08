@@ -4,10 +4,13 @@
 #![forbid(unsafe_code, missing_docs)]
 
 use axum::{extract::FromRef, routing::*, Router};
+use opentelemetry_otlp::WithExportConfig;
 use sqlx::{migrate, SqlitePool};
-use std::{fs::OpenOptions, net::SocketAddr};
+use std::{collections::HashMap, fs::OpenOptions, net::SocketAddr, time::Duration};
+
 use tower_cookies::{CookieManagerLayer, Key};
 use tower_http::trace::TraceLayer;
+use tracing_opentelemetry::OpenTelemetryLayer;
 use tracing_subscriber::{prelude::*, EnvFilter};
 use tracing_tree::HierarchicalLayer;
 
@@ -49,11 +52,35 @@ struct AppState {
 async fn main() -> Result<()> {
     color_eyre::install()?;
 
+    let opentelemetry_layer = if let Ok(honeycomb_key) = std::env::var("HONEYCOMB_KEY") {
+        let mut map = HashMap::<String, String>::new();
+        map.insert("x-honeycomb-team".to_string(), honeycomb_key);
+        map.insert("x-honeycomb-dataset".to_string(), "peek".to_string());
+
+        let tracer = opentelemetry_otlp::new_pipeline()
+            .tracing()
+            .with_exporter(
+                opentelemetry_otlp::new_exporter()
+                    .http()
+                    .with_endpoint("https://api.honeycomb.io")
+                    .with_timeout(Duration::from_secs(3))
+                    .with_headers(map),
+            )
+            .install_batch(opentelemetry::runtime::Tokio)?;
+
+        let opentelemetry_layer = OpenTelemetryLayer::new(tracer);
+
+        Some(opentelemetry_layer)
+    } else {
+        None
+    };
+
     tracing_subscriber::registry()
         .with(EnvFilter::new(
             std::env::var("RUST_LOG").unwrap_or_else(|_| "peek=debug,tower_http=debug".into()),
         ))
         .with(HierarchicalLayer::new(3))
+        .with(opentelemetry_layer)
         .init();
 
     let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
