@@ -27,8 +27,14 @@ ADD https://github.com/benbjohnson/litestream/releases/download/v0.3.9/litestrea
 RUN tar -C /usr/local/bin -xzf /tmp/litestream.tar.gz
 
 # Start building the final image
-FROM debian:buster-slim
+FROM debian:buster-slim as final
 WORKDIR /home/rust/
+
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && update-ca-certificates
+
 COPY --from=builder /home/rust/target/release/peek .
 
 COPY --from=builder /usr/local/bin/litestream /usr/local/bin/litestream
