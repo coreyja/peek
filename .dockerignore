@@ -1,3 +1,2 @@
 browser-tests/
 target/
-!target/release/peek

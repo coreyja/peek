@@ -79,28 +79,6 @@ jobs:
           name: Check prepared sqlx schema
           command: cd server && cargo sqlx prepare --check
 
-  build-release-rust:
-    docker:
-      - image: rust:latest
-    resource_class: xlarge
-    environment:
-      DATABASE_URL: "sqlite:./main.db"
-      SQLX_OFFLINE: true
-    steps:
-      - checkout
-      - with-rust-setup:
-          do:
-            - run:
-                name: Build
-                command: cargo build --release --locked --all-targets
-      - store_artifacts:
-          path: target/release/peek
-          destination: peek
-      - persist_to_workspace:
-          root: target
-          paths:
-            - release/
-
   deploy-fly:
     docker:
       - image: rust:latest
@@ -112,18 +90,13 @@ jobs:
       - run: curl -L https://fly.io/install.sh | sh
       - run: echo 'export FLYCTL_INSTALL="/root/.fly"' >> $BASH_ENV
       - run: echo 'export PATH="$FLYCTL_INSTALL/bin:$PATH"' >> $BASH_ENV
-      - run: flyctl deploy --app peek --dockerfile Dockerfile.circleci --remote-only
+      - run: flyctl deploy --app peek --remote-only
 
 workflows:
   version: 2
   ci:
     jobs:
       - build-and-test-rust
-      - build-release-rust:
-          filters:
-            branches:
-              only:
-                - 'main'
       - cypress/run:
           requires:
             - build-and-test-rust
@@ -143,7 +116,6 @@ workflows:
             - Fly.io
           requires:
             - cypress/run
-            - build-release-rust
             - build-and-test-rust
           filters:
             branches:
