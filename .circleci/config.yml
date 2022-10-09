@@ -3,6 +3,17 @@ orbs:
   cypress: cypress-io/cypress@2.1.0
 
 commands: # a reusable command with parameters
+  install-sqlx-cli:
+    steps:
+      - restore_cache:
+          keys:
+            - v1-sqlx-cli-{{ arch }}-0.6.2
+      - run: which cargo-sqlx || cargo install sqlx-cli --version 0.6.2
+      - save_cache:
+          key: v1-sqlx-cli-{{ arch }}-0.6.2
+          paths:
+            - /usr/local/cargo/bin/cargo-sqlx
+            - /usr/local/cargo/bin/sqlx
   with-rust-setup:
     parameters:
       do:
@@ -69,6 +80,13 @@ jobs:
           root: target
           paths:
             - debug/peek
+      - install-sqlx-cli
+      - run:
+          name: Setup DB
+          command: cd server && cargo sqlx database setup
+      - run:
+          name: Check prepared sqlx schema
+          command: cd server && cargo sqlx prepare --check
 
   build-release-rust:
     docker:
@@ -92,32 +110,6 @@ jobs:
           paths:
             - release/
 
-  check-db-schema:
-    docker:
-      - image: rust:latest
-    resource_class: xlarge
-    environment:
-      DATABASE_URL: "sqlite:/root/project/server/main.db"
-      SQLX_OFFLINE: true
-    steps:
-      - checkout
-      - with-rust-setup:
-          do:
-            - restore_cache:
-                keys:
-                  - v1-sqlx-cli-{{ arch }}-0.6.2
-            - run: which cargo-sqlx || cargo install sqlx-cli --version 0.6.2
-            - save_cache:
-                key: v1-sqlx-cli-{{ arch }}-0.6.2
-                paths:
-                  - /usr/local/cargo/bin/cargo-sqlx
-                  - /usr/local/cargo/bin/sqlx
-            - run:
-                name: Setup DB
-                command: cd server && cargo sqlx database setup
-            - run:
-                name: Check prepared sqlx schema
-                command: cd server && cargo sqlx prepare --check
   deploy-fly:
     docker:
       - image: rust:latest
@@ -141,7 +133,6 @@ workflows:
             branches:
               only:
                 - 'main'
-      - check-db-schema
       - lint-rust
       - cypress/run:
           requires:
@@ -161,10 +152,10 @@ workflows:
           context:
             - Fly.io
           requires:
-            - check-db-schema
             - lint-rust
             - cypress/run
             - build-release-rust
+            - build-and-test-rust
           filters:
             branches:
               only:
