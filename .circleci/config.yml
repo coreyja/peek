@@ -42,35 +42,7 @@ jobs:
                 name: Clippy
                 command: rustup component add clippy && cargo clippy --workspace --no-deps
 
-  doc-rust:
-    docker:
-      - image: rust:latest
-    resource_class: small
-    steps:
-      - checkout
-      - with-rust-setup:
-          do:
-            - attach_workspace:
-                at: target
-            - run:
-                name: Generate Docs
-                command: cargo doc --workspace --no-deps
-
-  test-rust:
-    docker:
-      - image: rust:latest
-    resource_class: small
-    steps:
-      - checkout
-      - with-rust-setup:
-          do:
-            - attach_workspace:
-                at: target
-            - run:
-                name: Run Tests
-                command: cargo test --locked 
-
-  build-rust:
+  build-and-test-rust:
     docker:
       - image: rust:latest
     resource_class: xlarge
@@ -84,15 +56,19 @@ jobs:
             - run:
                 name: Build
                 command: cargo build --locked --all-targets
+            - run:
+                name: Run Tests
+                command: cargo test --locked 
+            - run:
+                name: Generate Docs
+                command: cargo doc --workspace --no-deps
       - store_artifacts:
           path: target/debug/peek
           destination: peek
       - persist_to_workspace:
           root: target
           paths:
-            - debug/
-            - sqlx/
-            - CACHEDIR.TAG
+            - debug/peek
 
   build-release-rust:
     docker:
@@ -127,8 +103,6 @@ jobs:
       - checkout
       - with-rust-setup:
           do:
-            - attach_workspace:
-                at: target
             - restore_cache:
                 keys:
                   - v1-sqlx-cli-{{ arch }}-0.6.2
@@ -161,27 +135,17 @@ workflows:
   version: 2
   ci:
     jobs:
-      - build-rust
+      - build-and-test-rust
       - build-release-rust:
           filters:
             branches:
               only:
                 - 'main'
-      - check-db-schema:
-          requires:
-            - build-rust
-      - lint-rust:
-          requires:
-            - build-rust
-      - doc-rust:
-          requires:
-            - build-rust
-      - test-rust:
-          requires:
-            - build-rust
+      - check-db-schema
+      - lint-rust
       - cypress/run:
           requires:
-            - build-rust
+            - build-and-test-rust
           working_directory: browser-tests
           executor: cypress/base-16-14-2-slim
           attach-workspace: false
@@ -197,8 +161,6 @@ workflows:
           context:
             - Fly.io
           requires:
-            - test-rust
-            - doc-rust
             - check-db-schema
             - lint-rust
             - cypress/run
