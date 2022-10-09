@@ -131,7 +131,15 @@ jobs:
             - attach_workspace:
                 at: target
 
+            - restore_cache:
+                keys:
+                  - v1-sqlx-cli-{{ arch }}-0.6.2
             - run: cargo install sqlx-cli --version 0.6.2
+            - save_cache:
+                key: v1-sqlx-cli-{{ arch }}-0.6.2
+                paths:
+                  - /usr/local/cargo/bin/cargo-sqlx
+                  - /usr/local/cargo/bin/sqlx
 
             - run:
                 name: Setup DB
