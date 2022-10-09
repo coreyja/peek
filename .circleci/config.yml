@@ -113,7 +113,7 @@ jobs:
       - run: echo 'export FLYCTL_INSTALL="/root/.fly"' >> $BASH_ENV
       - run: echo 'export PATH="$FLYCTL_INSTALL/bin:$PATH"' >> $BASH_ENV
       - setup_remote_docker
-      - run: flyctl deploy --app peek --local-only --dockerfile Dockerfile.circleci
+      - run: flyctl deploy --app peek --dockerfile Dockerfile.circleci
 
 workflows:
   version: 2
