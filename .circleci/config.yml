@@ -142,7 +142,6 @@ workflows:
           context:
             - Fly.io
           requires:
-            - lint-rust
             - cypress/run
             - build-release-rust
             - build-and-test-rust
