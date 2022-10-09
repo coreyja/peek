@@ -55,7 +55,7 @@ jobs:
       - image: rust:latest
     resource_class: xlarge
     environment:
-      DATABASE_URL: "sqlite:./main.db"
+      DATABASE_URL: "sqlite:/root/project/server/main.db"
       SQLX_OFFLINE: true
     steps:
       - checkout
@@ -66,7 +66,7 @@ jobs:
                 command: cargo build --locked --all-targets
             - run:
                 name: Run Tests
-                command: cargo test --locked 
+                command: cargo test --locked --all-targets
             - run:
                 name: Generate Docs
                 command: cargo doc --workspace --no-deps
