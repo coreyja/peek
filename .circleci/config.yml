@@ -38,9 +38,6 @@ jobs:
             - run:
                 name: Test Formatting
                 command: cargo fmt -- --check
-            - run:
-                name: Clippy
-                command: rustup component add clippy && cargo clippy --workspace --no-deps
 
   build-and-test-rust:
     docker:
@@ -62,6 +59,9 @@ jobs:
             - run:
                 name: Generate Docs
                 command: cargo doc --workspace --no-deps
+            - run:
+                name: Clippy
+                command: rustup component add clippy && cargo clippy --workspace --no-deps
       - store_artifacts:
           path: target/debug/peek
           destination: peek
