@@ -32,24 +32,6 @@ commands: # a reusable command with parameters
 
       - steps: << parameters.do >>
 jobs:
-  lint-rust:
-    docker:
-      - image: rust:latest
-    resource_class: medium
-    steps:
-      - checkout
-
-      - with-rust-setup:
-          do:
-            - attach_workspace:
-                at: target
-            - run:
-                name: Install Rust Format
-                command: rustup component add rustfmt
-            - run:
-                name: Test Formatting
-                command: cargo fmt -- --check
-
   build-and-test-rust:
     docker:
       - image: rust:latest
@@ -71,8 +53,17 @@ jobs:
                 name: Generate Docs
                 command: cargo doc --workspace --no-deps
             - run:
+                name: Install Rust Format
+                command: rustup component add rustfmt
+            - run:
+                name: Test Formatting
+                command: cargo fmt -- --check
+            - run:
+                name: Install Clippy
+                command: rustup component add clippy
+            - run:
                 name: Clippy
-                command: rustup component add clippy && cargo clippy --workspace --no-deps
+                command: cargo clippy --workspace --no-deps
       - store_artifacts:
           path: target/debug/peek
           destination: peek
@@ -133,7 +124,6 @@ workflows:
             branches:
               only:
                 - 'main'
-      - lint-rust
       - cypress/run:
           requires:
             - build-and-test-rust
