@@ -1,7 +1,14 @@
 version: 2.1
 orbs:
-  cypress: cypress-io/cypress@2.1.0
+  cypress: cypress-io/cypress@2.2.0
 
+executors:
+  cypress-executor:
+    docker:
+      - image: cypress/base-16-14-2-slim
+    environment:
+      BING_NEWS_BASE_URL=http://localhost:8081
+      BING_NEWS_API_KEY=fake_key
 commands: # a reusable command with parameters
   install-sqlx-cli:
     steps:
@@ -101,12 +108,7 @@ workflows:
           requires:
             - build-and-test-rust
           working_directory: browser-tests
-          executor:
-            docker:
-              - image: cypress/base-16-14-2-slim
-            environment:
-              BING_NEWS_BASE_URL=http://localhost:8081
-              BING_NEWS_API_KEY=fake_key
+          executor: cypress-executor
           attach-workspace: false
           store_artifacts: true
           no-workspace: true
