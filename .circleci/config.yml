@@ -54,7 +54,7 @@ jobs:
             - rust/build:
                 with_cache: true
                 release: false
-                cache_version: v1
+                cache_version: v2
                 crate: --all-targets --locked
             - run:
                 name: Run Tests
