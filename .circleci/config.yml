@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   cypress: cypress-io/cypress@2.2.0
+  rust: circleci/rust@1.6.0
 
 executors:
   cypress-executor:
@@ -53,6 +54,10 @@ jobs:
             - run:
                 name: Build
                 command: cargo build --locked --all-targets
+            - rust/build:
+                with_cache: true
+                release: false
+                cache_version: v1
             - run:
                 name: Run Tests
                 command: cargo test --locked --all-targets
