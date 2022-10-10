@@ -119,7 +119,7 @@ workflows:
           no-workspace: true
           cache-key: 'cache-{{ arch }}-{{ .Branch }}-{{ checksum "browser-tests/package.json" }}'
           yarn: true
-          start: hivemind --processes mock_bing,server
+          start: /usr/bin/hivemind --processes mock_bing,server
           post-checkout:
             - run: apt update && apt-get install curl -y && curl https://github.com/DarthSim/hivemind/releases/download/v1.1.0/hivemind-v1.1.0-linux-amd64.gz > /usr/bin/hivemind && chmod +x /usr/bin/hivemind
             - attach_workspace:
