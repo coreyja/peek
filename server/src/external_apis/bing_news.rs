@@ -2,6 +2,7 @@ use color_eyre::{eyre::Context, Result};
 use serde::Deserialize;
 
 /// The configuration for the Bing News API
+#[derive(Clone)]
 pub struct Config {
     api_key: String,
     base_url: String,

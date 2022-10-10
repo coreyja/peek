@@ -4,6 +4,7 @@
 #![forbid(unsafe_code, missing_docs)]
 
 use axum::{extract::FromRef, routing::*, Router};
+use external_apis::bing_news::Config;
 use opentelemetry_otlp::WithExportConfig;
 use sqlx::{migrate, SqlitePool};
 use std::{collections::HashMap, fs::OpenOptions, net::SocketAddr, time::Duration};
@@ -43,9 +44,16 @@ impl FromRef<AppState> for Pool {
     }
 }
 
+impl FromRef<AppState> for Config {
+    fn from_ref(state: &AppState) -> Self {
+        state.bing_config.clone()
+    }
+}
+
 struct AppState {
     pool: Pool,
     key: CookieKey,
+    bing_config: external_apis::bing_news::Config,
 }
 
 #[tokio::main]
@@ -104,7 +112,13 @@ async fn main() -> Result<()> {
     let key = Key::generate();
     let key = CookieKey(key);
 
-    let state = AppState { pool, key };
+    let bing_config = external_apis::bing_news::Config::from_env()?;
+
+    let state = AppState {
+        pool,
+        key,
+        bing_config,
+    };
 
     let app = Router::with_state(state)
         // Root Route

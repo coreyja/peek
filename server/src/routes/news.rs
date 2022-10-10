@@ -17,7 +17,7 @@ pub(crate) mod get {
 }
 
 pub(crate) mod post {
-    use axum::{response::IntoResponse, Form};
+    use axum::{extract::State, response::IntoResponse, Form};
     use maud::html;
     use serde::Deserialize;
 
@@ -31,10 +31,11 @@ pub(crate) mod post {
         q: String,
     }
 
-    pub(crate) async fn router(Form(query): Form<NewsQuery>) -> impl IntoResponse {
-        let creds = Config::from_env().unwrap();
-
-        let results = get_news(&creds, &query.q).await;
+    pub(crate) async fn router(
+        Form(query): Form<NewsQuery>,
+        State(config): State<Config>,
+    ) -> impl IntoResponse {
+        let results = get_news(&config, &query.q).await;
 
         base(html! {
             h2 { "News Search" }
