@@ -101,14 +101,20 @@ workflows:
           requires:
             - build-and-test-rust
           working_directory: browser-tests
-          executor: cypress/base-16-14-2-slim
+          executor:
+            docker:
+              - image: cypress/base-16-14-2-slim
+            environment:
+              BING_NEWS_BASE_URL=http://localhost:8081
+              BING_NEWS_API_KEY=fake_key
           attach-workspace: false
           store_artifacts: true
           no-workspace: true
           cache-key: 'cache-{{ arch }}-{{ .Branch }}-{{ checksum "browser-tests/package.json" }}'
           yarn: true
-          start: ../target/debug/peek
+          start: hivemind --processes mock_bing,server
           post-checkout:
+            - run: curl https://github.com/DarthSim/hivemind/releases/download/v1.1.0/hivemind-v1.1.0-linux-amd64.gz > /usr/bin/hivemind && chmod +x /usr/bin/hivemind
             - attach_workspace:
                 at: target
       - deploy-fly:
