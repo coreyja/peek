@@ -4,7 +4,6 @@
 #![forbid(unsafe_code, missing_docs)]
 
 use axum::{extract::FromRef, routing::*, Router};
-use external_apis::bing_news::Config;
 use opentelemetry_otlp::WithExportConfig;
 use sqlx::{migrate, SqlitePool};
 use std::{collections::HashMap, fs::OpenOptions, net::SocketAddr, time::Duration};
@@ -44,7 +43,7 @@ impl FromRef<AppState> for Pool {
     }
 }
 
-impl FromRef<AppState> for Config {
+impl FromRef<AppState> for external_apis::bing_news::Config {
     fn from_ref(state: &AppState) -> Self {
         state.bing_config.clone()
     }

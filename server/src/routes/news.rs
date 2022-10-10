@@ -32,8 +32,8 @@ pub(crate) mod post {
     }
 
     pub(crate) async fn router(
-        Form(query): Form<NewsQuery>,
         State(config): State<Config>,
+        Form(query): Form<NewsQuery>,
     ) -> impl IntoResponse {
         let results = get_news(&config, &query.q).await;
 
