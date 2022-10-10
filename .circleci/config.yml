@@ -51,13 +51,11 @@ jobs:
       - checkout
       - with-rust-setup:
           do:
-            - run:
-                name: Build
-                command: cargo build --locked --all-targets
             - rust/build:
                 with_cache: true
                 release: false
                 cache_version: v1
+                crate: --all-targets --locked
             - run:
                 name: Run Tests
                 command: cargo test --locked --all-targets
