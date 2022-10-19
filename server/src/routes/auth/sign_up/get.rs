@@ -13,6 +13,7 @@ pub async fn router() -> impl IntoResponse {
         input type="email" name="email" placeholder="Email";
         input type="password" name="password" placeholder="Password";
         input type="password" name="passwordConfirmation" placeholder="Repeat Password";
+
         input type="submit" value="Sign Up";
       }
     })

@@ -1,12 +1,9 @@
 #[derive(Deserialize)]
 pub struct SignUp {
     name: String,
-    #[allow(unused)]
     email: String,
-    #[allow(unused)]
     password: String,
     #[serde(rename = "passwordConfirmation")]
-    #[allow(unused)]
     password_confirmation: String,
 }
 
@@ -59,6 +56,7 @@ pub async fn router(
 
     match insert_result {
         Err(sqlx::Error::Database(err)) => {
+            // 2067 is the Postgres error code for unique_violation
             assert_eq!(err.code().unwrap(), "2067", "Unexpected error code");
 
             templates::base(html! {
