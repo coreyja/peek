@@ -10,18 +10,27 @@ RUN apt-get update && apt-get install -y \
     protobuf-compiler \
     && rm -rf /var/lib/apt/lists/*
 
+RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
 # Avoid having to install/build all dependencies by copying
 # the Cargo files and making a dummy src/main.rs
 COPY Cargo.toml .
 COPY Cargo.lock .
+
 COPY server/Cargo.toml ./server/
 RUN mkdir -p ./server/src/ && echo "fn main() {}" > ./server/src/main.rs
+
+COPY frontend/Cargo.toml ./frontend/
+RUN mkdir -p ./frontend/src/ && echo "fn main() {}" > ./frontend/src/lib.rs
+
 RUN cargo build --release --locked --bin peek
 
 # We need to touch our real main.rs file or else docker will use
 # the cached one.
 COPY . .
 RUN touch server/src/main.rs
+
+RUN cd frontend && wasm-pack build --target web
 
 RUN cargo build --release --locked --bin peek
 
