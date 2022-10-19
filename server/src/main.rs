@@ -3,8 +3,16 @@
 //! Powered by [`axum`]
 #![forbid(unsafe_code, missing_docs)]
 
-use axum::{extract::FromRef, routing::*, Router};
+use axum::{
+    body::{self, Empty, Full},
+    extract::{FromRef, Path},
+    http::HeaderValue,
+    response::{IntoResponse, Response},
+    routing::*,
+    Router,
+};
 use opentelemetry_otlp::WithExportConfig;
+use reqwest::{header, StatusCode};
 use sqlx::{migrate, SqlitePool};
 use std::{collections::HashMap, fs::OpenOptions, net::SocketAddr, time::Duration};
 
@@ -47,6 +55,9 @@ struct AppState {
     pool: Pool,
     key: CookieKey,
 }
+
+use include_dir::{include_dir, Dir};
+static STATIC_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/static");
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -107,6 +118,7 @@ async fn main() -> Result<()> {
     let state = AppState { pool, key };
 
     let app = Router::with_state(state)
+        .route("/static/*path", get(static_path))
         // Root Route
         .route("/", get(routes::landing))
         // Auth Routes
@@ -130,4 +142,24 @@ async fn main() -> Result<()> {
         .await?;
 
     Ok(())
+}
+
+async fn static_path(Path(path): Path<String>) -> impl IntoResponse {
+    let path = path.trim_start_matches('/');
+    let mime_type = mime_guess::from_path(path).first_or_text_plain();
+
+    match STATIC_DIR.get_file(path) {
+        None => Response::builder()
+            .status(StatusCode::NOT_FOUND)
+            .body(body::boxed(Empty::new()))
+            .unwrap(),
+        Some(file) => Response::builder()
+            .status(StatusCode::OK)
+            .header(
+                header::CONTENT_TYPE,
+                HeaderValue::from_str(mime_type.as_ref()).unwrap(),
+            )
+            .body(body::boxed(Full::from(file.contents())))
+            .unwrap(),
+    }
 }

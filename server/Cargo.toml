@@ -5,12 +5,18 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[[bin]]
+name = "peek"
+path = "src/main.rs"
+
 [dependencies]
 argon2 = "0.4.1"
 axum = "0.6.0-rc.2"
 chrono = { version = "0.4.22", features = ["serde"] }
 color-eyre = "0.6.2"
+include_dir = "0.7.3"
 maud = { features = ["axum"], git = "https://github.com/coreyja/maud", branch = "ca/main/axum-0.6" }
+mime_guess = "2.0.4"
 opentelemetry = { version = "0.18.0", features = ["rt-tokio"], default-features = false }
 opentelemetry-otlp = { version = "0.11.0", features = ["http-proto", "reqwest-rustls", "reqwest-client"], default-features = false }
 rand_core = { version = "0.6.3", features = ["std"] }
