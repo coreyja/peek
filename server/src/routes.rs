@@ -5,16 +5,17 @@ use tracing::{info, instrument};
 
 use crate::{templates, Pool};
 
-use crate::auth::{CurrentUser, Session};
+use crate::auth::{CurrentUser, OptionalCurrentUser, Session};
 
 pub(crate) mod auth;
 pub(crate) mod news;
+pub(crate) mod team_members;
 
 #[instrument]
-pub async fn landing(current_user: CurrentUser) -> impl IntoResponse {
+pub async fn landing(current_user: OptionalCurrentUser) -> impl IntoResponse {
     let name = current_user
         .0
-        .map(|user| user.name)
+        .map(|user| user.0.name)
         .unwrap_or_else(|| "stranger".into());
 
     info!("Landing page for {}", name);
@@ -24,6 +25,8 @@ pub async fn landing(current_user: CurrentUser) -> impl IntoResponse {
 
       a href="/sign-up" { "Sign Up" }
       a href="/sign-in" { "Sign In" }
+
+      a href="/team_members" { "Add Team Member" }
 
       form action="/sign-out" method="post" {
         input type="submit" value="Sign Out";

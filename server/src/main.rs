@@ -132,6 +132,8 @@ async fn main() -> Result<()> {
         .route("/news", post(routes::news::post::router))
         // Old Route, basically a legacy page at this point
         .route("/team", get(routes::team))
+        // Team Members
+        .route("/team_members", get(routes::team_members::get::router))
         .layer(TraceLayer::new_for_http())
         .layer(CookieManagerLayer::new());
 
