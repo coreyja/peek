@@ -20,11 +20,7 @@ describe('Sign In', () => {
 
     cy.contains('Hello, stranger!');
 
-    cy.contains('Sign In').click();
-
-    cy.get('input[name="email"]').type(email);
-    cy.get('input[name="password"]').type('my-password');
-    cy.get('input[type="submit"]').click();
+    cy.signIn(email, 'my-password');
 
     cy.contains('Hello, Emily Thompson!');
 
@@ -36,15 +32,8 @@ describe('Sign In', () => {
   it('redirects with message when password is wrong', () => {
     cy.visit('http://localhost:3000/');
 
-    cy.contains('Sign Up').click();
-
-    cy.get('input[name="name"]').type('Emily Thompson');
-
     const email = faker.internet.email();
-    cy.get('input[name="email"]').type(email);
-    cy.get('input[name="password"]').type('my-password');
-    cy.get('input[name="passwordConfirmation"]').type('my-password');
-    cy.get('input[type="submit"]').click();
+    cy.signUp({ email });
 
     cy.contains('Hello, Emily Thompson!');
 
@@ -52,11 +41,7 @@ describe('Sign In', () => {
 
     cy.contains('Hello, stranger!');
 
-    cy.contains('Sign In').click();
-
-    cy.get('input[name="email"]').type(email);
-    cy.get('input[name="password"]').type('wrong-password');
-    cy.get('input[type="submit"]').click();
+    cy.signIn(email, 'wrong-password');
 
     cy.contains('Incorrect email and/or password');
   })
@@ -64,11 +49,7 @@ describe('Sign In', () => {
   it('redirects with message when the user does not exist', () => {
     cy.visit('http://localhost:3000/');
 
-    cy.contains('Sign In').click();
-
-    cy.get('input[name="email"]').type("wrong-email@example.com");
-    cy.get('input[name="password"]').type('password');
-    cy.get('input[type="submit"]').click();
+    cy.signIn('wrong-email@example.com', 'password');
 
     cy.contains('Incorrect email and/or password');
   })
