@@ -42,7 +42,7 @@ impl FromRef<AppState> for CookieKey {
 }
 
 /// Wrapper around a SqlitePool
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Pool(SqlitePool);
 
 impl FromRef<AppState> for Pool {
@@ -134,6 +134,7 @@ async fn main() -> Result<()> {
         .route("/team", get(routes::team))
         // Team Members
         .route("/team_members", get(routes::team_members::get::router))
+        .route("/team_members", post(routes::team_members::post::router))
         .layer(TraceLayer::new_for_http())
         .layer(CookieManagerLayer::new());
 

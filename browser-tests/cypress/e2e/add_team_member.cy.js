@@ -1,3 +1,5 @@
+import { faker } from '@faker-js/faker';
+
 describe('Adding a Team Member', () => {
     it('remembers the team member when added', () => {
         cy.visit('http://localhost:3000/');
@@ -6,7 +8,9 @@ describe('Adding a Team Member', () => {
 
         cy.contains('Sign In')
 
-        cy.signUp();
+        const email = faker.internet.email();
+        const password = 'my-password';
+        cy.signUp({ email, password });
 
         cy.contains('Hello, Emily Thompson!');
 
@@ -24,6 +28,15 @@ describe('Adding a Team Member', () => {
         cy.contains('Hello, Emily Thompson!');
 
         cy.contains('John Smith');
-        cy.contains('Bridgeton, ME');
+        cy.contains('04009');
+
+        cy.contains('Sign Out').click();
+
+        cy.signIn(email, password);
+
+        cy.contains('Hello, Emily Thompson!');
+
+        cy.contains('John Smith');
+        cy.contains('04009');
     })
 })
