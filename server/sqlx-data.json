@@ -68,6 +68,126 @@
     },
     "query": "UPDATE Sessions SET user_id = NULL, updated_at = datetime() WHERE id = ?"
   },
+  "49aee9bb12bf2b5d46bbbd169f179a887a4daa3fef9b637d7635ea50bccc887f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "zip_code",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "title",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "interests",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 6,
+          "type_info": "Datetime"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 7,
+          "type_info": "Datetime"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT * FROM TeamMembers WHERE user_id = ?"
+  },
+  "79323b60f628886d0cf7ae7700485223458f74423efefa5ebede0beabdb211dc": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "zip_code",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "title",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "interests",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 6,
+          "type_info": "Datetime"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 7,
+          "type_info": "Datetime"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 5
+      }
+    },
+    "query": "INSERT INTO TeamMembers (user_id, name, zip_code, title, interests) VALUES (?, ?, ?, ?, ?) RETURNING *"
+  },
   "87035a1d161f865dff1a53f92d85cea859639136637636586aa978845301ca86": {
     "describe": {
       "columns": [
