@@ -43,6 +43,7 @@ jobs:
       - checkout
       - with-rust-setup:
           do:
+            - run: mkdir -p frontend/pkg
             - run:
                 name: Build
                 command: cargo build --locked --all-targets
