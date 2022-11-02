@@ -67,9 +67,6 @@ pub async fn landing(
         h1 { "Hello, " (name) "!" }
         (user_markup)
 
-        a href="/sign-up" { "Sign Up" }
-        a href="/sign-in" { "Sign In" }
-
         a href="/team_members" { "Add Team Member" }
 
         form action="/sign-out" method="post" {
