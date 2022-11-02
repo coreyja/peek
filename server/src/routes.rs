@@ -51,18 +51,27 @@ pub async fn landing(
     info!("Landing page for {}", name);
 
     templates::base(html! {
-      h1 { "Hello, " (name) "!" }
-      (user_markup)
+        h1 class="text-center my-8 font-serif text-2xl text-[#001571] font-bold" { "Weather & News Updates" }
+        img src="static/hero.png" alt="Peek Hero" class="my-8";
 
-      a href="/sign-up" { "Sign Up" }
-      a href="/sign-in" { "Sign In" }
+        p class="font-sans my-8 px-8 text-center leading-relaxed text-[#000620] text-2xl" {
+            "Taking a peek at local weather and news, keeps you connected with your long distance coworkers."
+        }
 
-      a href="/team_members" { "Add Team Member" }
 
-      form action="/sign-out" method="post" {
-        input type="submit" value="Sign Out";
-      }
+        a href="/sign-up" class="text-xl block mx-8 my-2 py-2 px-8 font-bold bg-[#CADFFF] text-center font-sans text-[#001571] rounded-lg" { "Sign Up" }
+        a href="/sign-in" class="text-xl block mx-8 my-2 py-2 px-8 font-bold bg-[#001571] text-center font-sans text-[#CADFFF] rounded-lg" { "Sign In" }
 
+        // Legacy HTML Below
+        hr;
+        h1 { "Hello, " (name) "!" }
+        (user_markup)
+
+        a href="/team_members" { "Add Team Member" }
+
+        form action="/sign-out" method="post" {
+            input type="submit" value="Sign Out";
+        }
     })
 }
 
