@@ -57,7 +57,8 @@ struct AppState {
 }
 
 use include_dir::{include_dir, Dir};
-static STATIC_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/pkg");
+static PKG_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/pkg");
+static STATIC_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/static");
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -118,6 +119,7 @@ async fn main() -> Result<()> {
     let state = AppState { pool, key };
 
     let app = Router::with_state(state)
+        .route("/pkg/*path", get(pkg_path))
         .route("/static/*path", get(static_path))
         // Root Route
         .route("/", get(routes::landing))
@@ -145,6 +147,26 @@ async fn main() -> Result<()> {
         .await?;
 
     Ok(())
+}
+
+async fn pkg_path(Path(path): Path<String>) -> impl IntoResponse {
+    let path = path.trim_start_matches('/');
+    let mime_type = mime_guess::from_path(path).first_or_text_plain();
+
+    match PKG_DIR.get_file(path) {
+        None => Response::builder()
+            .status(StatusCode::NOT_FOUND)
+            .body(body::boxed(Empty::new()))
+            .unwrap(),
+        Some(file) => Response::builder()
+            .status(StatusCode::OK)
+            .header(
+                header::CONTENT_TYPE,
+                HeaderValue::from_str(mime_type.as_ref()).unwrap(),
+            )
+            .body(body::boxed(Full::from(file.contents())))
+            .unwrap(),
+    }
 }
 
 async fn static_path(Path(path): Path<String>) -> impl IntoResponse {
