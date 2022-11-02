@@ -27,17 +27,12 @@ pub fn base(inner: Markup) -> Markup {
         }
         link rel="stylesheet" href="pkg/tailwind.css";
         link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Merriweather";
-        link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat";
+        link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap"
 
         div {
           img src="static/logo.svg" alt="Peek Logo" class="w-32 mx-auto mt-8";
-          h1 class="text-center my-8 font-serif text-2xl text-[#001571] font-bold" { "Weather & News Updates" }
-          img src="static/hero.png" alt="Peek Hero" class="my-8";
-
-          p class="font-sans my-8 px-8 text-center leading-relaxed text-[#000620] text-2xl" {
-            "Taking a peek at local weather and news, keeps you connected with your long distance coworkers."
-          }
         }
+
         (inner)
       }
     }
