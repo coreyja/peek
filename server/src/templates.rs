@@ -3,7 +3,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 pub fn base(inner: Markup) -> Markup {
     html! {
       (DOCTYPE)
-      html lang="en" {
+      html lang="en" class="bg-blue-500" {
         head {
           meta name="viewport" content="width=device-width, initial-scale=1.0";
           title { "Peek" }
@@ -58,6 +58,7 @@ pub fn base(inner: Markup) -> Markup {
             run();
             "#))
         }
+        link rel="stylesheet" href="static/tailwind.css";
         (inner)
       }
     }
