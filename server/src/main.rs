@@ -57,7 +57,7 @@ struct AppState {
 }
 
 use include_dir::{include_dir, Dir};
-static STATIC_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../frontend/pkg");
+static STATIC_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/pkg");
 
 #[tokio::main]
 async fn main() -> Result<()> {
