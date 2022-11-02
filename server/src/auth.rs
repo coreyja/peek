@@ -2,7 +2,7 @@ use axum::{
     async_trait,
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
-    response::{IntoResponse, Response},
+    response::{IntoResponse, Redirect, Response},
 };
 use serde::{Deserialize, Serialize};
 use tower_cookies::{Cookie, Cookies};
@@ -11,7 +11,10 @@ use tracing::instrument;
 use crate::{CookieKey, Pool};
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct CurrentUser(pub(crate) Option<User>);
+pub struct CurrentUser(pub(crate) User);
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct OptionalCurrentUser(pub(crate) Option<CurrentUser>);
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Session {
@@ -91,9 +94,32 @@ where
 
     #[instrument(skip_all, ret)]
     async fn from_request_parts(parts: &mut Parts, state: &State) -> Result<Self, Self::Rejection> {
+        let optional_current_user = OptionalCurrentUser::from_request_parts(parts, state).await?;
+
+        if let Some(current_user) = optional_current_user.0 {
+            Ok(current_user)
+        } else {
+            Err(Redirect::to("/sign-in").into_response())
+        }
+    }
+}
+
+#[async_trait]
+impl<State> FromRequestParts<State> for OptionalCurrentUser
+where
+    State: Send + Sync,
+    CookieKey: FromRef<State>,
+    Pool: FromRef<State>,
+{
+    type Rejection = Response;
+
+    #[instrument(skip_all, ret)]
+    async fn from_request_parts(parts: &mut Parts, state: &State) -> Result<Self, Self::Rejection> {
         let session = Session::from_request_parts(parts, state).await?;
-        let user: Option<_> = if let Some(user_id) = session.user_id {
+
+        let user: Option<User> = if let Some(user_id) = session.user_id {
             let Pool(pool) = Pool::from_ref(state);
+
             sqlx::query_as!(User, "SELECT id, name FROM Users WHERE id = ?", user_id)
                 .fetch_optional(&pool)
                 .await
@@ -102,6 +128,8 @@ where
             None
         };
 
-        Ok(CurrentUser(user))
+        let current_user = user.map(CurrentUser);
+
+        Ok(OptionalCurrentUser(current_user))
     }
 }
