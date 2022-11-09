@@ -142,8 +142,6 @@ async fn main() -> Result<()> {
         // Bing News Search
         .route("/news", get(routes::news::get::router))
         .route("/news", post(routes::news::post::router))
-        // Old Route, basically a legacy page at this point
-        .route("/team", get(routes::team))
         // Team Members
         .route("/team_members", get(routes::team_members::get::router))
         .route("/team_members", post(routes::team_members::post::router))

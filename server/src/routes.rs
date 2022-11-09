@@ -3,7 +3,7 @@ use axum::response::{IntoResponse, Redirect, Response};
 use maud::{html, Markup};
 use tracing::{info, instrument};
 
-use crate::templates::base;
+use crate::templates::{base, with_footer};
 use crate::{templates, Pool};
 
 use crate::auth::{CurrentUser, OptionalCurrentUser, Session};
@@ -44,30 +44,6 @@ pub async fn landing(
     }).into_response()
 }
 
-#[instrument(skip(pool))]
-pub async fn team(session: Session, State(Pool(pool)): State<Pool>) -> impl IntoResponse {
-    let session_count = sqlx::query!("SELECT COUNT(*) as count FROM Sessions")
-        .fetch_one(&pool)
-        .await
-        .unwrap()
-        .count;
-    templates::base(html! {
-        h1 { "Hello, World!" }
-
-        p { "We have " (session_count) " sessions." }
-        p { "Your session_id is " (session.id) }
-
-        @match session.user_id {
-            Some(user_id) => {
-                p { "You are signed in as user " (user_id) }
-            }
-            None => {
-                p { "You are not signed in" }
-            }
-       }
-    })
-}
-
 #[instrument]
 pub async fn home(
     session: Session,
@@ -82,7 +58,7 @@ pub async fn home(
     .await
     .unwrap();
 
-    base(html! {
+    base(with_footer(html! {
         img src="static/under-logo.png" alt="" class="w-1/2 mx-auto -mt-8";
 
         h1 class="text-center my-8 font-serif text-2xl text-[#001571] font-bold" { "Welcome to Peek!" }
@@ -91,7 +67,7 @@ pub async fn home(
             "Local weather and news small talk starters to help connect with far away team members"
         }
 
-        @if team_members.len() == 0 {
+        @if team_members.is_empty() {
             img
                 src="static/home-page-empty.png"
                 alt="Image of lady on computer, her team mate is chatting in a chat bubble above her laptop"
@@ -105,5 +81,5 @@ pub async fn home(
                 }
             }
         }
-    })
+    }))
 }

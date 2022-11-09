@@ -1,10 +1,10 @@
 use axum::response::IntoResponse;
 use maud::html;
 
-use crate::templates;
+use crate::templates::{base, with_footer};
 
 pub async fn router() -> impl IntoResponse {
-    templates::base(html! {
+    base(with_footer(html! {
       h1 { "Create Account" }
 
 
@@ -16,5 +16,5 @@ pub async fn router() -> impl IntoResponse {
 
         input type="submit" value="Sign Up";
       }
-    })
+    }))
 }
