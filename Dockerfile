@@ -12,6 +12,10 @@ RUN apt-get update && apt-get install -y \
 
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
+RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 && \
+    chmod +x tailwindcss-linux-x64 && \
+    mv tailwindcss-linux-x64 tailwindcss
+
 # Avoid having to install/build all dependencies by copying
 # the Cargo files and making a dummy src/main.rs
 COPY Cargo.toml .
@@ -30,7 +34,10 @@ RUN cargo build --release --locked --bin peek
 COPY . .
 RUN touch server/src/main.rs
 
-RUN cd frontend && wasm-pack build --target web
+RUN cd frontend && \
+    wasm-pack build --target web
+
+RUN ./tailwindcss -i frontend/src/tailwind.css -o frontend/pkg/tailwind.css
 
 RUN cargo build --release --locked --bin peek
 
