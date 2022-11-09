@@ -113,7 +113,15 @@ async fn main() -> Result<()> {
 
     let pool = Pool(pool);
 
-    let key = Key::generate();
+    let key = if let Ok(cookie_secret) = std::env::var("COOKIE_SECRET") {
+        let master = hex::decode(cookie_secret)?;
+        let key = Key::from(&master);
+        key
+    } else {
+        let key = Key::generate();
+        dbg!(hex::encode(&key.master()));
+        key
+    };
     let key = CookieKey(key);
 
     let state = AppState { pool, key };

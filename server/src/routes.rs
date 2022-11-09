@@ -83,11 +83,26 @@ pub async fn home(
     .unwrap();
 
     base(html! {
-        p { "Home Page" };
+        img src="static/under-logo.png" alt="" class="w-1/2 mx-auto -mt-8";
 
-        ul {
-            @for team_member in team_members {
-                li { (team_member.name)  "  ("  (team_member.zip_code)  ")" }
+        h1 class="text-center my-8 font-serif text-2xl text-[#001571] font-bold" { "Welcome to Peek!" }
+
+        p class="font-sans mt-4 px-12 text-center leading-relaxed text-[#000620] text-xl font-light" {
+            "Local weather and news small talk starters to help connect with far away team members"
+        }
+
+        @if team_members.len() == 0 {
+            img
+                src="static/home-page-empty.png"
+                alt="Image of lady on computer, her team mate is chatting in a chat bubble above her laptop"
+                ;
+
+            h1 class="text-center font-serif text-2xl text-[#001571] font-bold" { "Add your first team member!" }
+        } @else {
+            ul {
+                @for team_member in team_members {
+                    li { (team_member.name)  "  ("  (team_member.zip_code)  ")" }
+                }
             }
         }
     })
