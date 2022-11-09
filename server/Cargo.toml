@@ -12,6 +12,7 @@ path = "src/main.rs"
 [dependencies]
 argon2 = "0.4.1"
 axum = "0.6.0-rc.2"
+axum-macros = "0.2.3"
 chrono = { version = "0.4.22", features = ["serde"] }
 color-eyre = "0.6.2"
 include_dir = "0.7.3"

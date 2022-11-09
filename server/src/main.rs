@@ -123,6 +123,8 @@ async fn main() -> Result<()> {
         .route("/static/*path", get(static_path))
         // Root Route
         .route("/", get(routes::landing))
+        // Home Page (Logged In Route)
+        .route("/home", get(routes::home))
         // Auth Routes
         .route("/sign-in", get(routes::auth::sign_in::get::router))
         .route("/sign-in", post(routes::auth::sign_in::post::router))

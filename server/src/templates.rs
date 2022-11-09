@@ -30,7 +30,9 @@ pub fn base(inner: Markup) -> Markup {
         link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap"
 
         div {
-          img src="static/logo.svg" alt="Peek Logo" class="w-32 mx-auto mt-8";
+          a href="/" {
+            img src="static/logo.svg" alt="Peek Logo" class="w-32 mx-auto mt-8";
+          }
         }
 
         (inner)
