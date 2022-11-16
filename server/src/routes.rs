@@ -1,8 +1,10 @@
 use axum::extract::State;
-use axum::response::IntoResponse;
-use maud::{html, Markup};
-use tracing::{info, instrument};
+use axum::response::{IntoResponse, Redirect, Response};
+use maud::html;
+use tracing::instrument;
 
+use crate::templates::base;
+use crate::templates::components::buttons::{primary_link_button, secondary_link_button};
 use crate::{templates, Pool};
 
 use crate::auth::{CurrentUser, OptionalCurrentUser, Session};
@@ -13,88 +15,70 @@ pub(crate) mod team_members;
 
 #[instrument]
 pub async fn landing(
-    current_user: OptionalCurrentUser,
+    OptionalCurrentUser(current_user): OptionalCurrentUser,
     State(pool): State<Pool>,
+) -> Response {
+    if current_user.is_some() {
+        return Redirect::to("/home").into_response();
+    }
+
+    templates::base(html! {
+        h1 class="text-center my-8 font-serif text-2xl text-[#001571] font-bold" { "Weather & News Updates" }
+        img src="static/hero.png" alt="Peek Hero" class="my-8";
+
+        p class="font-sans my-4 text-center leading-relaxed text-[#000620] text-2xl" {
+            "Taking a peek at local weather and news, keeps you connected with your long distance coworkers."
+        }
+
+
+        (primary_link_button("Sign Up", "/sign-up"))
+        (secondary_link_button("Sign In", "/sign-in"))
+    }, false).into_response()
+}
+
+#[instrument]
+pub async fn home(
+    session: Session,
+    CurrentUser(current_user): CurrentUser,
+    State(Pool(pool)): State<Pool>,
 ) -> impl IntoResponse {
-    async fn user_content(current_user: &CurrentUser, pool: Pool) -> Markup {
-        let team_members = sqlx::query!(
-            "SELECT * FROM TeamMembers WHERE user_id = ?",
-            current_user.0.id
-        )
-        .fetch_all(&pool.0)
-        .await
-        .unwrap();
+    let team_members = sqlx::query!(
+        "SELECT * FROM TeamMembers WHERE user_id = ?",
+        current_user.id
+    )
+    .fetch_all(&pool)
+    .await
+    .unwrap();
 
+    base(
         html! {
-            div {
-                p { "You are logged in!" }
+            img src="static/under-logo.png" alt="" class="w-1/2 mx-auto -mt-8";
 
+            h1 class="text-center font-serif text-2xl text-[#001571] font-bold" { "Welcome to Peek!" }
+
+            p class="font-sans mt-4 px-12 text-center leading-relaxed text-[#000620] text-xl font-light" {
+                "Local weather and news small talk starters to help connect with far away team members"
+            }
+
+            @if team_members.is_empty() {
+                img
+                    src="static/home-page-empty.png"
+                    alt="Image of lady on computer, her team mate is chatting in a chat bubble above her laptop"
+                    ;
+
+                h1 class="text-center font-serif text-2xl text-[#001571] font-bold" { "Add your first team member!" }
+            } @else {
                 ul {
                     @for team_member in team_members {
                         li { (team_member.name)  "  ("  (team_member.zip_code)  ")" }
                     }
                 }
             }
-        }
-    }
 
-    let user_markup = match current_user.0 {
-        Some(ref user) => user_content(user, pool).await,
-        None => html! {},
-    };
-
-    let name = current_user
-        .0
-        .map(|user| user.0.name)
-        .unwrap_or_else(|| "stranger".into());
-
-    info!("Landing page for {}", name);
-
-    templates::base(html! {
-        h1 class="text-center my-8 font-serif text-2xl text-[#001571] font-bold" { "Weather & News Updates" }
-        img src="static/hero.png" alt="Peek Hero" class="my-8";
-
-        p class="font-sans my-8 px-8 text-center leading-relaxed text-[#000620] text-2xl" {
-            "Taking a peek at local weather and news, keeps you connected with your long distance coworkers."
-        }
-
-
-        a href="/sign-up" class="text-xl block mx-8 my-2 py-2 px-8 font-bold bg-[#CADFFF] text-center font-sans text-[#001571] rounded-lg" { "Sign Up" }
-        a href="/sign-in" class="text-xl block mx-8 my-2 py-2 px-8 font-bold bg-[#001571] text-center font-sans text-[#CADFFF] rounded-lg" { "Sign In" }
-
-        // Legacy HTML Below
-        hr;
-        h1 { "Hello, " (name) "!" }
-        (user_markup)
-
-        a href="/team_members" { "Add Team Member" }
-
-        form action="/sign-out" method="post" {
-            input type="submit" value="Sign Out";
-        }
-    })
-}
-
-#[instrument(skip(pool))]
-pub async fn team(session: Session, State(Pool(pool)): State<Pool>) -> impl IntoResponse {
-    let session_count = sqlx::query!("SELECT COUNT(*) as count FROM Sessions")
-        .fetch_one(&pool)
-        .await
-        .unwrap()
-        .count;
-    templates::base(html! {
-        h1 { "Hello, World!" }
-
-        p { "We have " (session_count) " sessions." }
-        p { "Your session_id is " (session.id) }
-
-        @match session.user_id {
-            Some(user_id) => {
-                p { "You are signed in as user " (user_id) }
+            form action="/sign-out" method="post" {
+                input type="submit" value="Sign Out";
             }
-            None => {
-                p { "You are not signed in" }
-            }
-       }
-    })
+        },
+        true,
+    )
 }

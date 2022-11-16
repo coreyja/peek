@@ -113,7 +113,15 @@ async fn main() -> Result<()> {
 
     let pool = Pool(pool);
 
-    let key = Key::generate();
+    let key = if let Ok(cookie_secret) = std::env::var("COOKIE_SECRET") {
+        let master = hex::decode(cookie_secret)?;
+
+        Key::from(&master)
+    } else {
+        let key = Key::generate();
+        dbg!(hex::encode(key.master()));
+        key
+    };
     let key = CookieKey(key);
 
     let state = AppState { pool, key };
@@ -123,6 +131,8 @@ async fn main() -> Result<()> {
         .route("/static/*path", get(static_path))
         // Root Route
         .route("/", get(routes::landing))
+        // Home Page (Logged In Route)
+        .route("/home", get(routes::home))
         // Auth Routes
         .route("/sign-in", get(routes::auth::sign_in::get::router))
         .route("/sign-in", post(routes::auth::sign_in::post::router))
@@ -132,8 +142,6 @@ async fn main() -> Result<()> {
         // Bing News Search
         .route("/news", get(routes::news::get::router))
         .route("/news", post(routes::news::post::router))
-        // Old Route, basically a legacy page at this point
-        .route("/team", get(routes::team))
         // Team Members
         .route("/team_members", get(routes::team_members::get::router))
         .route("/team_members", post(routes::team_members::post::router))

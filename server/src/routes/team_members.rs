@@ -2,17 +2,20 @@ pub(crate) mod get {
     use axum::response::IntoResponse;
     use maud::{html, Markup};
 
-    use crate::{auth::CurrentUser, templates};
+    use crate::{auth::CurrentUser, templates::base};
 
     pub async fn router(_: CurrentUser) -> impl IntoResponse {
-        templates::base(html! {
-            h1 { "New Team Member" }
+        base(
+            html! {
+                h1 { "New Team Member" }
 
-            (form())
-        })
+                (form())
+            },
+            false,
+        )
     }
 
-    pub(crate) fn form() -> Markup {
+    fn form() -> Markup {
         html! {
             form method="POST" {
                 input type="text" name="name" placeholder="Name";
@@ -31,7 +34,6 @@ pub(crate) mod post {
         response::{IntoResponse, Redirect},
         Form,
     };
-    use maud::html;
     use serde::Deserialize;
 
     use crate::{auth::CurrentUser, Pool};

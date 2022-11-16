@@ -1,6 +1,11 @@
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
-pub fn base(inner: Markup) -> Markup {
+pub(crate) mod components {
+    pub(crate) mod buttons;
+    pub(crate) mod inputs;
+}
+
+pub fn base(inner: Markup, with_footer: bool) -> Markup {
     html! {
       (DOCTYPE)
       // TODO: Move this to a Tailwind color
@@ -27,13 +32,79 @@ pub fn base(inner: Markup) -> Markup {
         }
         link rel="stylesheet" href="pkg/tailwind.css";
         link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Merriweather";
-        link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap"
+        link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap";
 
-        div {
-          img src="static/logo.svg" alt="Peek Logo" class="w-32 mx-auto mt-8";
+        script src="https://kit.fontawesome.com/aeb22c2a3e.js" crossorigin="anonymous" {}
+
+        body {
+          div class="h-screen flex flex-col" {
+            div class="flex-grow overflow-y-scroll px-8" {
+              div {
+                a href="/" {
+                  img src="static/logo.svg" alt="Peek Logo" class="w-32 mx-auto mt-8";
+                }
+              }
+              (inner)
+            }
+
+            @if with_footer { (footer::footer()) }
+          }
         }
-
-        (inner)
       }
+    }
+}
+
+enum Icon {
+    Home,
+    AddCircle,
+    Profile,
+}
+
+impl Icon {
+    const fn to_font_awesome_class(&self) -> &'static str {
+        match self {
+            Icon::Home => "fa-solid fa-house-chimney fa-lg",
+            Icon::AddCircle => "fa-regular fa-circle-plus fa-lg",
+            Icon::Profile => "fa-regular fa-user fa-lg",
+        }
+    }
+}
+
+mod footer {
+    use maud::{html, Markup, Render};
+
+    use super::Icon;
+
+    pub(crate) fn footer() -> Markup {
+        html! {
+          div class="bg-[#CADFFF] h-16 rounded-lg flex flex-row" data-testid="footer" {
+            (FooterItem::new("Home", Icon::Home, "/home"))
+            (FooterItem::new("Add", Icon::AddCircle, "/team_members"))
+            (FooterItem::new("Profile", Icon::Profile, "/profile"))
+          }
+        }
+    }
+
+    struct FooterItem<'a, 'b> {
+        label: &'a str,
+        icon: Icon,
+        href: &'b str,
+    }
+
+    impl<'a, 'b> FooterItem<'a, 'b> {
+        fn new(label: &'a str, icon: Icon, href: &'b str) -> Self {
+            Self { label, icon, href }
+        }
+    }
+
+    impl<'a, 'b> Render for FooterItem<'a, 'b> {
+        fn render(&self) -> Markup {
+            html! {
+              a href=(self.href) class="flex-1 flex flex-col items-center justify-center" {
+                i class=(self.icon.to_font_awesome_class()) {}
+                p { (self.label) }
+              }
+            }
+        }
     }
 }

@@ -4,14 +4,14 @@ describe('Sign Up', () => {
   it('creates a new Account', () => {
     cy.signUp();
 
-    cy.contains('Hello, Emily Thompson!');
+    cy.isLoggedIn();
   })
 
   it('errors when the email is already taken', () => {
     const email = faker.internet.email();
     cy.signUp({ email });
 
-    cy.contains('Hello, Emily Thompson!');
+    cy.isLoggedIn();
 
     cy.contains('Sign Out').click();
 

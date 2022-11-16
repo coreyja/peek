@@ -1,20 +1,25 @@
 use axum::response::IntoResponse;
 use maud::html;
 
-use crate::templates;
+use crate::templates::{
+    base,
+    components::{buttons::submit_button, inputs::form_input},
+};
 
 pub async fn router() -> impl IntoResponse {
-    templates::base(html! {
-      h1 { "Create Account" }
+    base(
+        html! {
+          img src="static/under-logo.png" alt="" class="w-1/2 mx-auto -mt-8";
 
+          form action="/sign-up" method="post" {
+            (form_input("name", "Name", "text"));
+            (form_input("email", "Email", "email"));
+            (form_input("password", "Password", "password"));
+            (form_input("passwordConfirmation", "Repeat Password", "password"));
 
-      form action="/sign-up" method="post" {
-        input type="text" name="name" placeholder="Name";
-        input type="email" name="email" placeholder="Email";
-        input type="password" name="password" placeholder="Password";
-        input type="password" name="passwordConfirmation" placeholder="Repeat Password";
-
-        input type="submit" value="Sign Up";
-      }
-    })
+            (submit_button("Sign Up"));
+          }
+        },
+        true,
+    )
 }

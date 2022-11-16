@@ -4,17 +4,14 @@ describe('Adding a Team Member', () => {
     it('remembers the team member when added', () => {
         cy.visit('http://localhost:3000/');
 
-        cy.contains('Add Team Member').click();
-
         cy.contains('Sign In')
 
         const email = faker.internet.email();
         const password = 'my-password';
         cy.signUp({ email, password });
 
-        cy.contains('Hello, Emily Thompson!');
 
-        cy.contains('Add Team Member').click();
+        cy.get('[data-testid="footer"]').contains('Add').click();
 
         cy.contains('New Team Member');
 
@@ -25,7 +22,7 @@ describe('Adding a Team Member', () => {
 
         cy.get('input[type="submit"]').click();
 
-        cy.contains('Hello, Emily Thompson!');
+        cy.contains('Welcome to Peek!');
 
         cy.contains('John Smith');
         cy.contains('04009');
@@ -34,7 +31,7 @@ describe('Adding a Team Member', () => {
 
         cy.signIn(email, password);
 
-        cy.contains('Hello, Emily Thompson!');
+        cy.contains('Welcome to Peek!');
 
         cy.contains('John Smith');
         cy.contains('04009');

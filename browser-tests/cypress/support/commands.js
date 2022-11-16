@@ -27,3 +27,12 @@ Cypress.Commands.add('signUp', ({ email, password, passwordConfirmation } = {}) 
     cy.get('input[name="passwordConfirmation"]').type(passwordConfirmation);
     cy.get('input[type="submit"]').click();
 });
+
+Cypress.Commands.add('isLoggedIn', () => {
+    cy.contains('Welcome to Peek!');
+});
+
+Cypress.Commands.add('isLoggedOut', () => {
+    cy.contains('Taking a peek at local weather and news, keeps you connected with your long distance coworkers.');
+});
+
