@@ -23,12 +23,12 @@ pub(crate) fn primary_link_button<Content: Render>(contents: Content, href: &str
     }
 }
 
-pub(crate) fn submit_button<Content: Render>(contents: Content) -> Markup {
+pub(crate) fn submit_button(contents: &str) -> Markup {
     html! {
-        button
-            type="subit"
+        input
+            type="submit"
             class=(primary_button_classes())
-            { (contents) }
+            value=(contents);
     }
 }
 

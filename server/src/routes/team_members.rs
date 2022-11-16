@@ -2,10 +2,7 @@ pub(crate) mod get {
     use axum::response::IntoResponse;
     use maud::{html, Markup};
 
-    use crate::{
-        auth::CurrentUser,
-        templates::{self, base},
-    };
+    use crate::{auth::CurrentUser, templates::base};
 
     pub async fn router(_: CurrentUser) -> impl IntoResponse {
         base(
@@ -37,7 +34,6 @@ pub(crate) mod post {
         response::{IntoResponse, Redirect},
         Form,
     };
-    use maud::html;
     use serde::Deserialize;
 
     use crate::{auth::CurrentUser, Pool};

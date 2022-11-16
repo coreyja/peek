@@ -4,8 +4,6 @@ describe('Adding a Team Member', () => {
     it('remembers the team member when added', () => {
         cy.visit('http://localhost:3000/');
 
-        cy.contains('Add Team Member').click();
-
         cy.contains('Sign In')
 
         const email = faker.internet.email();

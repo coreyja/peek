@@ -1,7 +1,7 @@
 use axum::extract::State;
 use axum::response::{IntoResponse, Redirect, Response};
-use maud::{html, Markup};
-use tracing::{info, instrument};
+use maud::html;
+use tracing::instrument;
 
 use crate::templates::base;
 use crate::templates::components::buttons::{primary_link_button, secondary_link_button};

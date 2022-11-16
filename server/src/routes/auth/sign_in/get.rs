@@ -1,5 +1,5 @@
 use axum::{extract::Query, response::IntoResponse};
-use maud::{html, Markup};
+use maud::html;
 use serde::Deserialize;
 
 use crate::templates::{
