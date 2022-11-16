@@ -61,7 +61,7 @@ pub async fn home(
     base(with_footer(html! {
         img src="static/under-logo.png" alt="" class="w-1/2 mx-auto -mt-8";
 
-        h1 class="text-center my-8 font-serif text-2xl text-[#001571] font-bold" { "Welcome to Peek!" }
+        h1 class="text-center font-serif text-2xl text-[#001571] font-bold" { "Welcome to Peek!" }
 
         p class="font-sans mt-4 px-12 text-center leading-relaxed text-[#000620] text-xl font-light" {
             "Local weather and news small talk starters to help connect with far away team members"

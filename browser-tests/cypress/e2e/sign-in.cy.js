@@ -14,19 +14,19 @@ describe('Sign In', () => {
     cy.get('input[name="passwordConfirmation"]').type('my-password');
     cy.get('input[type="submit"]').click();
 
-    cy.contains('Hello, Emily Thompson!');
+    cy.isLoggedIn();
 
     cy.contains('Sign Out').click();
 
-    cy.contains('Hello, stranger!');
+    cy.isLoggedOut();
 
     cy.signIn(email, 'my-password');
 
-    cy.contains('Hello, Emily Thompson!');
+    cy.isLoggedIn();
 
     cy.visit('http://localhost:3000/');
 
-    cy.contains('Hello, Emily Thompson!');
+    cy.isLoggedIn();
   })
 
   it('redirects with message when password is wrong', () => {
@@ -35,11 +35,11 @@ describe('Sign In', () => {
     const email = faker.internet.email();
     cy.signUp({ email });
 
-    cy.contains('Hello, Emily Thompson!');
+    cy.isLoggedIn();
 
     cy.contains('Sign Out').click();
 
-    cy.contains('Hello, stranger!');
+    cy.isLoggedOut();
 
     cy.signIn(email, 'wrong-password');
 
