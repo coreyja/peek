@@ -78,7 +78,7 @@ mod footer {
 
     pub(crate) fn footer() -> Markup {
         html! {
-          div class="bg-[#CADFFF] h-16 rounded-lg flex flex-row"{
+          div class="bg-[#CADFFF] h-16 rounded-lg flex flex-row" data-testid="footer" {
             (FooterItem::new("Home", Icon::Home, "/home"))
             (FooterItem::new("Add", Icon::AddCircle, "/team_members"))
             (FooterItem::new("Profile", Icon::Profile, "/profile"))

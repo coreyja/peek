@@ -12,9 +12,8 @@ describe('Adding a Team Member', () => {
         const password = 'my-password';
         cy.signUp({ email, password });
 
-        cy.contains('Hello, Emily Thompson!');
 
-        cy.contains('Add Team Member').click();
+        cy.get('[data-testid="footer"]').contains('Add').click();
 
         cy.contains('New Team Member');
 
@@ -25,7 +24,7 @@ describe('Adding a Team Member', () => {
 
         cy.get('input[type="submit"]').click();
 
-        cy.contains('Hello, Emily Thompson!');
+        cy.contains('Welcome to Peek!');
 
         cy.contains('John Smith');
         cy.contains('04009');
@@ -34,7 +33,7 @@ describe('Adding a Team Member', () => {
 
         cy.signIn(email, password);
 
-        cy.contains('Hello, Emily Thompson!');
+        cy.contains('Welcome to Peek!');
 
         cy.contains('John Smith');
         cy.contains('04009');

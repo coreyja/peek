@@ -81,5 +81,9 @@ pub async fn home(
                 }
             }
         }
+
+        form action="/sign-out" method="post" {
+            input type="submit" value="Sign Out";
+        }
     }))
 }
