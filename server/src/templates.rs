@@ -1,6 +1,6 @@
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
-pub fn base(inner: Markup) -> Markup {
+pub fn base(inner: Markup, with_footer: bool) -> Markup {
     html! {
       (DOCTYPE)
       // TODO: Move this to a Tailwind color
@@ -32,25 +32,19 @@ pub fn base(inner: Markup) -> Markup {
         script src="https://kit.fontawesome.com/aeb22c2a3e.js" crossorigin="anonymous" {}
 
         body {
-          (inner)
-        }
-      }
-    }
-}
-
-pub fn with_footer(inner: Markup) -> Markup {
-    html! {
-      div class="h-screen flex flex-col" {
-        div class="flex-grow overflow-y-scroll" {
-          div {
-            a href="/" {
-              img src="static/logo.svg" alt="Peek Logo" class="w-32 mx-auto mt-8";
+          div class="h-screen flex flex-col" {
+            div class="flex-grow overflow-y-scroll" {
+              div {
+                a href="/" {
+                  img src="static/logo.svg" alt="Peek Logo" class="w-32 mx-auto mt-8";
+                }
+              }
+              (inner)
             }
-          }
-          (inner)
-        }
 
-        (footer::footer())
+            @if with_footer { (footer::footer()) }
+          }
+        }
       }
     }
 }

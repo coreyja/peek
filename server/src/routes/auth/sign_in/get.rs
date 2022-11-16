@@ -2,7 +2,7 @@ use axum::{extract::Query, response::IntoResponse};
 use maud::html;
 use serde::Deserialize;
 
-use crate::templates::{self, with_footer};
+use crate::templates::{self};
 
 #[derive(Deserialize, Debug)]
 pub struct SignInQuery {
@@ -12,22 +12,25 @@ pub struct SignInQuery {
 pub async fn router(query: Query<SignInQuery>) -> impl IntoResponse {
     dbg!(&query);
 
-    templates::base(with_footer(html! {
-      h1 { "Sign In" }
+    templates::base(
+        html! {
+          h1 { "Sign In" }
 
-      @if let Some(flash) =  query.flash.as_ref() {
-        @if flash == "incorrect" {
-          p { "Incorrect email and/or password" }
-        } @else {
-            p { "unknown flash" }
-        }
-      }
+          @if let Some(flash) =  query.flash.as_ref() {
+            @if flash == "incorrect" {
+              p { "Incorrect email and/or password" }
+            } @else {
+                p { "unknown flash" }
+            }
+          }
 
-      form action="/sign-in" method="post" {
-        input type="email" name="email" placeholder="Email";
-        input type="password" name="password" placeholder="Password";
+          form action="/sign-in" method="post" {
+            input type="email" name="email" placeholder="Email";
+            input type="password" name="password" placeholder="Password";
 
-        input type="submit" value="Sign Up";
-      }
-    }))
+            input type="submit" value="Sign Up";
+          }
+        },
+        true,
+    )
 }

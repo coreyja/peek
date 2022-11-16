@@ -4,15 +4,18 @@ pub(crate) mod get {
 
     use crate::{
         auth::CurrentUser,
-        templates::{self, base, with_footer},
+        templates::{self, base},
     };
 
     pub async fn router(_: CurrentUser) -> impl IntoResponse {
-        base(with_footer(html! {
-            h1 { "New Team Member" }
+        base(
+            html! {
+                h1 { "New Team Member" }
 
-            (form())
-        }))
+                (form())
+            },
+            false,
+        )
     }
 
     fn form() -> Markup {

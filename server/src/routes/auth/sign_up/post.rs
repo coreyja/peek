@@ -31,9 +31,12 @@ pub async fn router(
     form: Form<SignUp>,
 ) -> Response {
     if form.password != form.password_confirmation {
-        return base(html! {
-          h1 { "Passwords do not match" }
-        })
+        return base(
+            html! {
+              h1 { "Passwords do not match" }
+            },
+            true,
+        )
         .into_response();
     }
 
@@ -59,9 +62,12 @@ pub async fn router(
             // 2067 is the Postgres error code for unique_violation
             assert_eq!(err.code().unwrap(), "2067", "Unexpected error code");
 
-            templates::base(html! {
-              h3 { "Email has already been taken" }
-            })
+            templates::base(
+                html! {
+                  h3 { "Email has already been taken" }
+                },
+                true,
+            )
             .into_response()
         }
         Err(err) => {

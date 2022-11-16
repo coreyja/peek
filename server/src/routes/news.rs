@@ -5,14 +5,17 @@ pub(crate) mod get {
     use crate::templates::base;
 
     pub(crate) async fn router() -> impl IntoResponse {
-        base(html! {
-            h1 { "News Search" }
+        base(
+            html! {
+                h1 { "News Search" }
 
-            form action="/news" method="post" {
-                input type="text" name="q" placeholder="Search query";
-                input type="submit" value="Search";
-            }
-        })
+                form action="/news" method="post" {
+                    input type="text" name="q" placeholder="Search query";
+                    input type="submit" value="Search";
+                }
+            },
+            true,
+        )
     }
 }
 
@@ -36,25 +39,28 @@ pub(crate) mod post {
 
         let results = get_news(&creds, &query.q).await;
 
-        base(html! {
-            h2 { "News Search" }
+        base(
+            html! {
+                h2 { "News Search" }
 
-            form action="/news" method="post" {
-                input type="text" name="q" placeholder="Jersy City, NJ" value=(query.q);
-                input type="submit" value="Search";
-            }
+                form action="/news" method="post" {
+                    input type="text" name="q" placeholder="Jersy City, NJ" value=(query.q);
+                    input type="submit" value="Search";
+                }
 
-            p { "You searched for " (query.q) }
+                p { "You searched for " (query.q) }
 
-            h3 { "Results" }
+                h3 { "Results" }
 
-            ul {
-                li { "Result 1" }
-                li { "Result 2" }
-                li { "Result 3" }
-            }
+                ul {
+                    li { "Result 1" }
+                    li { "Result 2" }
+                    li { "Result 3" }
+                }
 
-            pre { (format!("{:#?}", results)) }
-        })
+                pre { (format!("{:#?}", results)) }
+            },
+            true,
+        )
     }
 }
