@@ -27,10 +27,11 @@ pub fn base(inner: Markup) -> Markup {
         }
         link rel="stylesheet" href="pkg/tailwind.css";
         link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Merriweather";
-        link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap"
+        link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap";
+
+        script src="https://kit.fontawesome.com/aeb22c2a3e.js" crossorigin="anonymous" {}
 
         body {
-
           (inner)
         }
       }
@@ -61,16 +62,12 @@ enum Icon {
 }
 
 impl Icon {
-    const fn to_filename(&self) -> &'static str {
+    const fn to_font_awesome_class(&self) -> &'static str {
         match self {
-            Icon::Home => "Home_fill.svg",
-            Icon::AddCircle => "Add_ring_light.svg",
-            Icon::Profile => "User_light.svg",
+            Icon::Home => "fa-solid fa-house-chimney fa-lg",
+            Icon::AddCircle => "fa-regular fa-circle-plus fa-lg",
+            Icon::Profile => "fa-regular fa-user fa-lg",
         }
-    }
-
-    fn to_path(&self) -> String {
-        format!("/static/icons/{}", self.to_filename())
     }
 }
 
@@ -105,7 +102,7 @@ mod footer {
         fn render(&self) -> Markup {
             html! {
               a href=(self.href) class="flex-1 flex flex-col items-center justify-center" {
-                img src=(self.icon.to_path()) alt="" class="block";
+                i class=(self.icon.to_font_awesome_class()) {}
                 p { (self.label) }
               }
             }
