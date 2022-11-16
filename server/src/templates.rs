@@ -1,5 +1,9 @@
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
+pub(crate) mod components {
+    pub(crate) mod buttons;
+}
+
 pub fn base(inner: Markup, with_footer: bool) -> Markup {
     html! {
       (DOCTYPE)
@@ -33,7 +37,7 @@ pub fn base(inner: Markup, with_footer: bool) -> Markup {
 
         body {
           div class="h-screen flex flex-col" {
-            div class="flex-grow overflow-y-scroll" {
+            div class="flex-grow overflow-y-scroll px-8" {
               div {
                 a href="/" {
                   img src="static/logo.svg" alt="Peek Logo" class="w-32 mx-auto mt-8";

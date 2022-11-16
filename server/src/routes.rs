@@ -4,6 +4,7 @@ use maud::{html, Markup};
 use tracing::{info, instrument};
 
 use crate::templates::base;
+use crate::templates::components::buttons::{primary_link_button, secondary_link_button};
 use crate::{templates, Pool};
 
 use crate::auth::{CurrentUser, OptionalCurrentUser, Session};
@@ -25,13 +26,13 @@ pub async fn landing(
         h1 class="text-center my-8 font-serif text-2xl text-[#001571] font-bold" { "Weather & News Updates" }
         img src="static/hero.png" alt="Peek Hero" class="my-8";
 
-        p class="font-sans my-4 px-8 text-center leading-relaxed text-[#000620] text-2xl" {
+        p class="font-sans my-4 text-center leading-relaxed text-[#000620] text-2xl" {
             "Taking a peek at local weather and news, keeps you connected with your long distance coworkers."
         }
 
 
-        a href="/sign-up" class="text-xl block mx-8 my-2 py-2 px-8 font-bold bg-[#CADFFF] text-center font-sans text-[#001571] rounded-lg" { "Sign Up" }
-        a href="/sign-in" class="text-xl block mx-8 my-2 py-2 px-8 font-bold bg-[#001571] text-center font-sans text-[#CADFFF] rounded-lg" { "Sign In" }
+        (primary_link_button("Sign Up", "/sign-up"))
+        (secondary_link_button("Sign In", "/sign-in"))
     }, false).into_response()
 }
 

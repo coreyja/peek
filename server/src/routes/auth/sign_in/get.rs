@@ -1,12 +1,27 @@
 use axum::{extract::Query, response::IntoResponse};
-use maud::html;
+use maud::{html, Markup};
 use serde::Deserialize;
 
-use crate::templates::{self};
+use crate::templates::{self, components::buttons::submit_button};
 
 #[derive(Deserialize, Debug)]
 pub struct SignInQuery {
     flash: Option<String>,
+}
+
+fn form_input(name: &str, label: &str, input_type: &str) -> Markup {
+    html! {
+      label class="block mb-8" {
+        div class="pb-2" { (label) }
+        input
+          type=(input_type)
+          name=(name)
+          required="required"
+          placeholder=(label)
+          class="block w-full p-2 border border-[#CADFFF] rounded"
+          ;
+      }
+    }
 }
 
 pub async fn router(query: Query<SignInQuery>) -> impl IntoResponse {
@@ -14,7 +29,7 @@ pub async fn router(query: Query<SignInQuery>) -> impl IntoResponse {
 
     templates::base(
         html! {
-          h1 { "Sign In" }
+          img src="static/under-logo.png" alt="" class="w-1/2 mx-auto -mt-8";
 
           @if let Some(flash) =  query.flash.as_ref() {
             @if flash == "incorrect" {
@@ -25,12 +40,12 @@ pub async fn router(query: Query<SignInQuery>) -> impl IntoResponse {
           }
 
           form action="/sign-in" method="post" {
-            input type="email" name="email" placeholder="Email";
-            input type="password" name="password" placeholder="Password";
+            (form_input("email", "Email", "email"));
+            (form_input("password", "Password", "password"));
 
-            input type="submit" value="Sign Up";
+            (submit_button("Sign In"));
           }
         },
-        true,
+        false,
     )
 }
