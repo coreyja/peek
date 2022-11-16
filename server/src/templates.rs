@@ -2,6 +2,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub(crate) mod components {
     pub(crate) mod buttons;
+    pub(crate) mod inputs;
 }
 
 pub fn base(inner: Markup, with_footer: bool) -> Markup {
