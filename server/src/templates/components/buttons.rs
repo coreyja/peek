@@ -41,7 +41,6 @@ pub(crate) fn secondary_link_button<Content: Render>(contents: Content, href: &s
     }
 }
 
-
 pub(crate) fn signout_button() -> Markup {
     html! {
         form method="post" action="/sign-out" {
