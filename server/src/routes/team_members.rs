@@ -2,28 +2,32 @@ pub(crate) mod get {
     use axum::response::IntoResponse;
     use maud::{html, Markup};
 
-    use crate::{auth::CurrentUser, templates::base};
+    use crate::{
+        auth::CurrentUser,
+        templates::{
+            base,
+            components::{buttons::submit_button, inputs::form_input},
+        },
+    };
 
     pub async fn router(_: CurrentUser) -> impl IntoResponse {
         base(
             html! {
-                h1 { "New Team Member" }
-
                 (form())
             },
-            false,
+            true,
         )
     }
 
     fn form() -> Markup {
         html! {
-            form method="POST" {
-                input type="text" name="name" placeholder="Name";
-                input type="text" name="zipCode" placeholder="Zip Code";
-                input type="text" name="title" placeholder="Title";
-                input type="textarea" name="interests" placeholder="Interests";
+            form method="POST" class="pt-16" {
+                (form_input("name", "Name", "text"))
+                (form_input("zipCode", "Zip Code", "text"))
+                (form_input("title", "Title", "text"))
+                (form_input("interests", "Interests", "textarea"))
 
-                input type="submit" value="Create!";
+                (submit_button("Create!"))
             }
         }
     }

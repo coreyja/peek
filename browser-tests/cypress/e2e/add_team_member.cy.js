@@ -13,8 +13,6 @@ describe('Adding a Team Member', () => {
 
         cy.get('[data-testid="footer"]').contains('Add').click();
 
-        cy.contains('New Team Member');
-
         cy.get('input[name="name"]').type('John Smith');
         cy.get('input[name="zipCode"]').type('04009');
         cy.get('input[name="title"]').type('Software Engineer');
