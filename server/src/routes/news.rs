@@ -14,7 +14,7 @@ pub(crate) mod get {
                     input type="submit" value="Search";
                 }
             },
-            true,
+            Some(Default::default()),
         )
     }
 }
@@ -60,7 +60,7 @@ pub(crate) mod post {
 
                 pre { (format!("{:#?}", results)) }
             },
-            true,
+            Some(Default::default()),
         )
     }
 }

@@ -35,7 +35,7 @@ pub async fn router(
             html! {
               h1 { "Passwords do not match" }
             },
-            true,
+            Some(Default::default()),
         )
         .into_response();
     }
@@ -66,7 +66,7 @@ pub async fn router(
                 html! {
                   h3 { "Email has already been taken" }
                 },
-                true,
+                Some(Default::default()),
             )
             .into_response()
         }

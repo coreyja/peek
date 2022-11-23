@@ -28,6 +28,11 @@ Cypress.Commands.add('signUp', ({ email, password, passwordConfirmation } = {}) 
     cy.get('input[type="submit"]').click();
 });
 
+Cypress.Commands.add('signOut', () => {
+    cy.contains('Profile').click();
+    cy.contains('Sign Out').click();
+});
+
 Cypress.Commands.add('isLoggedIn', () => {
     cy.contains('Welcome to Peek!');
 });

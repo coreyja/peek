@@ -11,6 +11,7 @@ use crate::auth::{CurrentUser, OptionalCurrentUser, Session};
 
 pub(crate) mod auth;
 pub(crate) mod news;
+pub(crate) mod profile;
 pub(crate) mod team_members;
 
 #[instrument]
@@ -33,7 +34,7 @@ pub async fn landing(
 
         (primary_link_button("Sign Up", "/sign-up"))
         (secondary_link_button("Sign In", "/sign-in"))
-    }, false).into_response()
+    }, None).into_response()
 }
 
 #[instrument]
@@ -74,11 +75,7 @@ pub async fn home(
                     }
                 }
             }
-
-            form action="/sign-out" method="post" {
-                input type="submit" value="Sign Out";
-            }
         },
-        true,
+        Some(Default::default()),
     )
 }

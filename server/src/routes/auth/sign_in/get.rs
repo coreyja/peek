@@ -4,7 +4,10 @@ use serde::Deserialize;
 
 use crate::templates::{
     self,
-    components::{buttons::submit_button, inputs::form_input},
+    components::{
+        buttons::submit_button,
+        inputs::{FormInput, FormInputOptions},
+    },
 };
 
 #[derive(Deserialize, Debug)]
@@ -28,12 +31,26 @@ pub async fn router(query: Query<SignInQuery>) -> impl IntoResponse {
           }
 
           form action="/sign-in" method="post" {
-            (form_input("email", "Email", "email"));
-            (form_input("password", "Password", "password"));
+            (FormInput {
+                name: "email",
+                label: "Email",
+                options: FormInputOptions {
+                    input_type: "email",
+                    required: true,
+                },
+            });
+            (FormInput {
+                name: "password",
+                label: "Password",
+                options: FormInputOptions {
+                    input_type: "password",
+                    required: true,
+                },
+            });
 
             (submit_button("Sign In"));
           }
         },
-        false,
+        None,
     )
 }

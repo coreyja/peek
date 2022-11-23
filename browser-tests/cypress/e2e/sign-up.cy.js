@@ -13,7 +13,7 @@ describe('Sign Up', () => {
 
     cy.isLoggedIn();
 
-    cy.contains('Sign Out').click();
+    cy.signOut();
 
     cy.signUp({ email });
 
