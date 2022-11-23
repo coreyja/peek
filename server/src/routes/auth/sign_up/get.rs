@@ -12,10 +12,10 @@ pub async fn router() -> impl IntoResponse {
           img src="static/under-logo.png" alt="" class="w-1/2 mx-auto -mt-8";
 
           form action="/sign-up" method="post" {
-            (form_input("name", "Name", "text"));
-            (form_input("email", "Email", "email"));
-            (form_input("password", "Password", "password"));
-            (form_input("passwordConfirmation", "Repeat Password", "password"));
+            (form_input("name", "Name", "text", true));
+            (form_input("email", "Email", "email", true));
+            (form_input("password", "Password", "password", true));
+            (form_input("passwordConfirmation", "Repeat Password", "password", true));
 
             (submit_button("Sign Up"));
           }

@@ -28,8 +28,8 @@ pub async fn router(query: Query<SignInQuery>) -> impl IntoResponse {
           }
 
           form action="/sign-in" method="post" {
-            (form_input("email", "Email", "email"));
-            (form_input("password", "Password", "password"));
+            (form_input("email", "Email", "email", true));
+            (form_input("password", "Password", "password", true));
 
             (submit_button("Sign In"));
           }

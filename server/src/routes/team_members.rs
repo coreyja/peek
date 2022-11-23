@@ -6,7 +6,8 @@ pub(crate) mod get {
         auth::CurrentUser,
         templates::{
             base,
-            components::{buttons::submit_button, inputs::form_input}, footer::{Footer, FooterItem},
+            components::{buttons::submit_button, inputs::form_input},
+            footer::{Footer, FooterItem},
         },
     };
 
@@ -22,10 +23,10 @@ pub(crate) mod get {
     fn form() -> Markup {
         html! {
             form method="POST" class="pt-16" {
-                (form_input("name", "Name", "text"))
-                (form_input("zipCode", "Zip Code", "text"))
-                (form_input("title", "Title", "text"))
-                (form_input("interests", "Interests", "textarea"))
+                (form_input("name", "Name", "text", true))
+                (form_input("zipCode", "Zip Code", "text", true))
+                (form_input("title", "Title", "text", false))
+                (form_input("interests", "Interests", "textarea", false))
 
                 (submit_button("Create!"))
             }
