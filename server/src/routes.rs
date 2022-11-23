@@ -33,7 +33,7 @@ pub async fn landing(
 
         (primary_link_button("Sign Up", "/sign-up"))
         (secondary_link_button("Sign In", "/sign-in"))
-    }, false).into_response()
+    }, None).into_response()
 }
 
 #[instrument]
@@ -79,6 +79,6 @@ pub async fn home(
                 input type="submit" value="Sign Out";
             }
         },
-        true,
+        Some(Default::default()),
     )
 }

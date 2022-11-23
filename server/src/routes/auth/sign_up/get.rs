@@ -20,6 +20,6 @@ pub async fn router() -> impl IntoResponse {
             (submit_button("Sign Up"));
           }
         },
-        true,
+        Some(Default::default()),
     )
 }

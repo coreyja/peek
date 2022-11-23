@@ -1,11 +1,14 @@
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
+use self::footer::Footer;
+
+pub(crate) mod footer;
 pub(crate) mod components {
     pub(crate) mod buttons;
     pub(crate) mod inputs;
 }
 
-pub fn base(inner: Markup, with_footer: bool) -> Markup {
+pub(crate) fn base(inner: Markup, footer: Option<Footer>) -> Markup {
     html! {
       (DOCTYPE)
       // TODO: Move this to a Tailwind color
@@ -47,7 +50,7 @@ pub fn base(inner: Markup, with_footer: bool) -> Markup {
               (inner)
             }
 
-            @if with_footer { (footer::footer()) }
+            @if let Some(footer) = footer { (footer) }
           }
         }
       }
@@ -63,48 +66,17 @@ enum Icon {
 impl Icon {
     const fn to_font_awesome_class(&self) -> &'static str {
         match self {
-            Icon::Home => "fa-solid fa-house-chimney fa-lg",
+            Icon::Home => "fa-regular fa-house-chimney fa-lg",
             Icon::AddCircle => "fa-regular fa-circle-plus fa-lg",
             Icon::Profile => "fa-regular fa-user fa-lg",
         }
     }
-}
 
-mod footer {
-    use maud::{html, Markup, Render};
-
-    use super::Icon;
-
-    pub(crate) fn footer() -> Markup {
-        html! {
-          div class="bg-[#CADFFF] h-16 rounded-lg flex flex-row" data-testid="footer" {
-            (FooterItem::new("Home", Icon::Home, "/home"))
-            (FooterItem::new("Add", Icon::AddCircle, "/team_members"))
-            (FooterItem::new("Profile", Icon::Profile, "/profile"))
-          }
-        }
-    }
-
-    struct FooterItem<'a, 'b> {
-        label: &'a str,
-        icon: Icon,
-        href: &'b str,
-    }
-
-    impl<'a, 'b> FooterItem<'a, 'b> {
-        fn new(label: &'a str, icon: Icon, href: &'b str) -> Self {
-            Self { label, icon, href }
-        }
-    }
-
-    impl<'a, 'b> Render for FooterItem<'a, 'b> {
-        fn render(&self) -> Markup {
-            html! {
-              a href=(self.href) class="flex-1 flex flex-col items-center justify-center" {
-                i class=(self.icon.to_font_awesome_class()) {}
-                p { (self.label) }
-              }
-            }
+    const fn to_active_font_awesome_class(&self) -> &'static str {
+        match self {
+            Icon::Home => "fa-solid fa-house-chimney fa-lg",
+            Icon::AddCircle => "fa-solid fa-circle-plus fa-lg",
+            Icon::Profile => "fa-solid fa-user fa-lg",
         }
     }
 }

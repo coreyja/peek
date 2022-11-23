@@ -6,7 +6,7 @@ pub(crate) mod get {
         auth::CurrentUser,
         templates::{
             base,
-            components::{buttons::submit_button, inputs::form_input},
+            components::{buttons::submit_button, inputs::form_input}, footer::{Footer, FooterItem},
         },
     };
 
@@ -15,7 +15,7 @@ pub(crate) mod get {
             html! {
                 (form())
             },
-            true,
+            Some(Footer::new(FooterItem::Add)),
         )
     }
 

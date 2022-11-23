@@ -34,6 +34,6 @@ pub async fn router(query: Query<SignInQuery>) -> impl IntoResponse {
             (submit_button("Sign In"));
           }
         },
-        false,
+        None,
     )
 }
