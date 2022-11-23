@@ -16,7 +16,7 @@ describe('Sign In', () => {
 
     cy.isLoggedIn();
 
-    cy.contains('Sign Out').click();
+    cy.signOut();
 
     cy.isLoggedOut();
 
@@ -37,7 +37,7 @@ describe('Sign In', () => {
 
     cy.isLoggedIn();
 
-    cy.contains('Sign Out').click();
+    cy.signOut();
 
     cy.isLoggedOut();
 

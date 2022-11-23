@@ -145,6 +145,8 @@ async fn main() -> Result<()> {
         // Team Members
         .route("/team_members", get(routes::team_members::get::router))
         .route("/team_members", post(routes::team_members::post::router))
+        // Profile
+        .route("/profile", get(routes::profile::get::router))
         .layer(TraceLayer::new_for_http())
         .layer(CookieManagerLayer::new());
 

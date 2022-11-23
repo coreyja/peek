@@ -25,7 +25,7 @@ describe('Adding a Team Member', () => {
         cy.contains('John Smith');
         cy.contains('04009');
 
-        cy.contains('Sign Out').click();
+        cy.signOut();
 
         cy.signIn(email, password);
 

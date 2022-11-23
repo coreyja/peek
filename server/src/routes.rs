@@ -11,6 +11,7 @@ use crate::auth::{CurrentUser, OptionalCurrentUser, Session};
 
 pub(crate) mod auth;
 pub(crate) mod news;
+pub(crate) mod profile;
 pub(crate) mod team_members;
 
 #[instrument]
@@ -73,10 +74,6 @@ pub async fn home(
                         li { (team_member.name)  "  ("  (team_member.zip_code)  ")" }
                     }
                 }
-            }
-
-            form action="/sign-out" method="post" {
-                input type="submit" value="Sign Out";
             }
         },
         Some(Default::default()),
